@@ -1,11 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store';
-
-interface ProtectedRouteProps {
-    redirectPath?: string;
-    isAllowed?: boolean;
-}
+import type { ProtectedRouteProps } from '@/types/component.types';
 
 const ProtectedRoute = ({ redirectPath = '/login', isAllowed }: ProtectedRouteProps) => {
     const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);

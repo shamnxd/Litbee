@@ -1,11 +1,5 @@
 import { cn } from "@/lib/utils";
-
-interface FeatureCardProps {
-    icon: React.ElementType;
-    title: string;
-    desc: string;
-    badge?: string;
-}
+import type { FeatureCardProps } from "@/types/component.types";
 
 export const FeatureCard = ({ icon: Icon, title, desc, badge }: FeatureCardProps) => (
     <div className="group relative bg-white border border-gray-200 hover:border-amber-400 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-amber-400/20">

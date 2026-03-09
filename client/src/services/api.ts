@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { store } from '../store';
 import { logout, updateToken } from '../store/slices/authSlice';
 
@@ -11,24 +12,24 @@ const api = axios.create({
 });
 
 api.interceptors.request.use(
-    (config) => {
+    (config: InternalAxiosRequestConfig) => {
         const token = store.getState().auth.token;
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
     },
-    (error) => {
+    (error: AxiosError) => {
         return Promise.reject(error);
     }
 );
 
 api.interceptors.response.use(
-    (response) => {
+    (response: AxiosResponse) => {
         return response;
     },
-    async (error) => {
-        const originalRequest = error.config;
+    async (error: AxiosError) => {
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {

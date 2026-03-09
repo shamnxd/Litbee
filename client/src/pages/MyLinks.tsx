@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { urlService } from "@/services/urlService";
 import { useDebounce } from "@/hooks/useDebounce";
 import { authService } from "@/services/authService";
+import type { LinkItem, RawUrlItem } from "@/types/link.types";
 
 // Shared Modals
 import { LinkSuccessModal } from "@/components/shared/LinkSuccessModal";
@@ -16,25 +17,6 @@ import { QrModal } from "@/components/shared/QrModal";
 import { LinkModal } from "@/components/shared/LinkModal";
 
 import { isAxiosError } from "axios";
-
-export interface LinkItem {
-    id: string;
-    shortUrl: string;
-    longUrl: string;
-    clicks: number;
-    icon: string;
-    tags: { name: string; color: string }[];
-    expired?: boolean;
-}
-
-interface RawUrlItem {
-    _id: string;
-    shortCode: string;
-    longUrl: string;
-    clicks: number;
-    tags: { name: string; color: string }[];
-}
-
 export default function MyLinks() {
     const [links, setLinks] = useState<LinkItem[]>([]);
     const [loading, setLoading] = useState(true);

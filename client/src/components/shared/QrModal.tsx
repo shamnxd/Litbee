@@ -1,12 +1,7 @@
 import { X, Copy, Check } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
-
-interface QrModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    shortUrl: string;
-}
+import type { QrModalProps } from "@/types/component.types";
 
 export const QrModal = ({ isOpen, onClose, shortUrl }: QrModalProps) => {
     const [copied, setCopied] = useState(false);

@@ -7,26 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { urlShortenerSchema, type UrlShortenerFormData } from "@/lib/validation";
 
-interface Tag {
-    name: string;
-    color: string;
-}
-
-interface LinkModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onSubmit: (e: React.FormEvent) => void;
-    title: string;
-    buttonText: string;
-    longUrl: string;
-    setLongUrl: (val: string) => void;
-    customSlug: string;
-    setCustomSlug: (val: string) => void;
-    tags: Tag[];
-    setTags: (tags: Tag[]) => void;
-    excludeId?: string;
-    isSubmitLoading?: boolean;
-}
+import type { LinkModalProps } from "@/types/component.types";
 
 export const LinkModal = ({
     isOpen,
@@ -64,7 +45,7 @@ export const LinkModal = ({
 
     const onFormSubmit = () => {
         // Trigger the parent onSubmit with a synthetic event
-        const event = new Event("submit", { bubbles: true, cancelable: true }) as any;
+        const event = new Event("submit", { bubbles: true, cancelable: true }) as unknown as React.FormEvent<HTMLFormElement>;
         onSubmit(event);
     };
     useEffect(() => {
