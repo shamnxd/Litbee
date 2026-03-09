@@ -33,44 +33,30 @@ export const LinkModal = ({
         register,
         handleSubmit,
         formState: { errors },
-        setValue,
-        watch,
+        reset,
     } = useForm<UrlShortenerFormData>({
         resolver: zodResolver(urlShortenerSchema),
         defaultValues: {
-            longUrl,
-            customSlug,
+            longUrl: '',
+            customSlug: '',
         },
     });
 
-    const onFormSubmit = () => {
-        // Trigger the parent onSubmit with a synthetic event
+    const onFormSubmit = (data: UrlShortenerFormData) => {
+        setLongUrl(data.longUrl || '');
+        setCustomSlug(data.customSlug || '');
         const event = new Event("submit", { bubbles: true, cancelable: true }) as unknown as React.FormEvent<HTMLFormElement>;
         onSubmit(event);
     };
-    useEffect(() => {
-        setValue("longUrl", longUrl);
-    }, [longUrl, setValue]);
 
     useEffect(() => {
-        setValue("customSlug", customSlug);
-    }, [customSlug, setValue]);
-
-    // Watch form values to sync back to parent
-    const watchedLongUrl = watch("longUrl");
-    const watchedCustomSlug = watch("customSlug");
-
-    useEffect(() => {
-        if (watchedLongUrl !== longUrl) {
-            setLongUrl(watchedLongUrl || "");
+        if (isOpen) {
+            reset({
+                longUrl,
+                customSlug,
+            });
         }
-    }, [watchedLongUrl, setLongUrl, longUrl]);
-
-    useEffect(() => {
-        if (watchedCustomSlug !== customSlug) {
-            setCustomSlug(watchedCustomSlug || "");
-        }
-    }, [watchedCustomSlug, setCustomSlug, customSlug]);
+    }, [isOpen, longUrl, customSlug, reset]);
 
     useEffect(() => {
         const checkSlug = async () => {
