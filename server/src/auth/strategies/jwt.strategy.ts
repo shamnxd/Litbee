@@ -4,21 +4,21 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 
 export interface JwtPayload {
-    sub: string;
-    email: string;
+  sub: string;
+  email: string;
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(configService: ConfigService) {
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: configService.get<string>('JWT_SECRET') ?? 'fallback_secret',
-        });
-    }
+  constructor(configService: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get<string>('JWT_SECRET') ?? 'fallback_secret',
+    });
+  }
 
-    async validate(payload: JwtPayload) {
-        return { userId: payload.sub, email: payload.email };
-    }
+  validate(payload: JwtPayload) {
+    return { userId: payload.sub, email: payload.email };
+  }
 }

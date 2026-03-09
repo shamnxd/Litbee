@@ -2,9 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
 
   const configService = app.get(ConfigService);
 
@@ -16,6 +18,8 @@ async function bootstrap() {
     }),
   );
 
+  app.setGlobalPrefix('api');
+
   app.enableCors({
     origin: configService.get<string>('FRONTEND_URL'),
     credentials: true,
@@ -26,5 +30,10 @@ async function bootstrap() {
 }
 
 bootstrap()
-  .then(() => console.log('App is running...'))
-  .catch(() => console.log('App is fialed to start'));
+  .then(() => {
+    const port = process.env.PORT || 3000;
+    console.log(`App is running on port ${port}...`);
+  })
+  .catch((err) => {
+    console.error('App failed to start:', err);
+  });

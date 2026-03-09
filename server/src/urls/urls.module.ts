@@ -5,10 +5,10 @@ import { UrlsController } from './urls.controller';
 import { ShortUrl, UrlSchema } from './schemas/url.schema';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: ShortUrl.name, schema: UrlSchema }]),
-    ],
-    providers: [UrlsService],
-    controllers: [UrlsController],
+  imports: [
+    MongooseModule.forFeature([{ name: ShortUrl.name, schema: UrlSchema }]),
+  ],
+  providers: [UrlsService],
+  controllers: [UrlsController],
 })
-export class UrlsModule { }
+export class UrlsModule {}

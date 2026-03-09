@@ -1,1 +1,1 @@
-// Auth related TS interfaces
+export type AuthMode = "login" | "signup";
