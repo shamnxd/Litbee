@@ -1,9 +1,4 @@
-interface StepCardProps {
-    number: string;
-    title: string;
-    desc: string;
-    icon: React.ElementType;
-}
+import type { StepCardProps } from "@/types/component.types";
 
 export const StepCard = ({ number, title, desc, icon: Icon }: StepCardProps) => (
     <div className="flex flex-col items-center text-center relative">

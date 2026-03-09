@@ -1,10 +1,5 @@
 import api from './api';
-
-export interface CreateUrlDto {
-    longUrl: string;
-    customSlug?: string;
-    tags?: { name: string; color: string }[];
-}
+import type { CreateUrlDto } from '@/types/link.types';
 
 export const urlService = {
     async getAll(page: number = 1, limit: number = 10, search?: string) {

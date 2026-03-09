@@ -23,7 +23,7 @@ function App() {
     const initAuth = async () => {
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL || 'http://localhost:3000/api'}/auth/refresh`,
+          `${import.meta.env.VITE_API_URL}/auth/refresh`,
           {},
           { withCredentials: true }
         );
@@ -52,7 +52,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
 
-        {/* Guest only routes (Redirect if logged in) */}
         <Route element={<PublicRoute />}>
           <Route path="/auth" element={<Auth />} />
           <Route path="/login" element={<Auth />} />
@@ -61,14 +60,12 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
-        {/* Protect the my-links route */}
         <Route element={<ProtectedRoute />}>
           <Route path="/my-links" element={<MyLinks />} />
         </Route>
 
         <Route path="/verify-email" element={<VerifyEmail />} />
 
-        {/* Catch-all for short URLs (Must be last) */}
         <Route path="/:code" element={<RedirectHandler />} />
       </Routes>
     </BrowserRouter>

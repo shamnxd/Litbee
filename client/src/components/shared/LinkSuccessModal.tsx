@@ -2,13 +2,7 @@ import { Copy, Check, X, CheckCircle2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-
-interface LinkSuccessModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    shortUrl: string;
-    longUrl: string;
-}
+import type { LinkSuccessModalProps } from "@/types/component.types";
 
 export const LinkSuccessModal = ({ isOpen, onClose, shortUrl, longUrl }: LinkSuccessModalProps) => {
     const [copied, setCopied] = useState(false);

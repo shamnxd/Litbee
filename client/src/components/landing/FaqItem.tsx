@@ -1,9 +1,5 @@
 import { AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import type { FaqEntry } from "@/types/landing.types";
-
-interface ExtendedFaqEntry extends FaqEntry {
-    value: string;
-}
+import type { ExtendedFaqEntry } from "@/types/component.types";
 
 export const FaqItem = ({ q, a, value }: ExtendedFaqEntry) => {
     return (

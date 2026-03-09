@@ -7,6 +7,9 @@ import { useDispatch } from "react-redux";
 import { loginStart, loginSuccess, loginFailure } from "@/store/slices/authSlice";
 import { authService } from "@/services/authService";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, signupSchema, type LoginFormData, type SignupFormData } from "@/lib/validation";
 
 import { isAxiosError } from "axios";
 
@@ -14,10 +17,20 @@ export default function Auth() {
     const [mode, setMode] = useState<AuthMode>("login");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [form, setForm] = useState({ name: "", email: "", password: "" });
+    const [errorMsg, setErrorMsg] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [errorMsg, setErrorMsg] = useState("");
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset,
+        clearErrors,
+    } = useForm<LoginFormData | SignupFormData>({
+        resolver: zodResolver(mode === "login" ? loginSchema : signupSchema),
+        mode: "onChange",
+    });
 
     const handleGoogleAuth = async (token: string) => {
         setIsLoading(true);
@@ -48,30 +61,26 @@ export default function Auth() {
         onError: () => setErrorMsg("Google Login Failed"),
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm((p: typeof form) => ({ ...p, [e.target.name]: e.target.value }));
-        setErrorMsg("");
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (data: LoginFormData | SignupFormData) => {
         setIsLoading(true);
-        dispatch(loginStart());
+        clearErrors();
         setErrorMsg("");
 
         try {
             if (mode === "login") {
-                const data = await authService.login({ email: form.email, password: form.password });
-                dispatch(loginSuccess({ user: data.user, token: data.access_token }));
-                if (data.user.isVerified) {
+                const loginData = data as LoginFormData;
+                const response = await authService.login(loginData);
+                dispatch(loginSuccess({ user: response.user, token: response.access_token }));
+                if (response.user.isVerified) {
                     navigate("/my-links");
                 } else {
-                    navigate("/verify-email", { state: { email: form.email } });
+                    navigate("/verify-email", { state: { email: response.user.email } });
                 }
             } else {
-                const data = await authService.signup(form);
-                dispatch(loginSuccess({ user: data.user, token: data.access_token }));
-                navigate("/verify-email", { state: { email: form.email } });
+                const signupData = data as SignupFormData;
+                const response = await authService.signup(signupData);
+                dispatch(loginSuccess({ user: response.user, token: response.access_token }));
+                navigate("/verify-email", { state: { email: response.user.email } });
             }
         } catch (error: unknown) {
             let message = "Authentication failed.";
@@ -87,8 +96,10 @@ export default function Auth() {
 
     const switchMode = (next: AuthMode) => {
         setMode(next);
-        setForm({ name: "", email: "", password: "" });
+        reset();
         setShowPassword(false);
+        setErrorMsg("");
+        clearErrors();
     };
 
     const isLogin = mode === "login";
@@ -189,7 +200,7 @@ export default function Auth() {
                     <div className="h-px flex-1 bg-gray-100" />
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
                     {errorMsg && (
                         <div className="bg-red-50 text-red-500 text-sm px-4 py-2 rounded-md">
                             {errorMsg}
@@ -200,27 +211,32 @@ export default function Auth() {
                         <div className="flex flex-col gap-1.5">
                             <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Full Name</label>
                             <input
-                                name="name"
                                 type="text"
                                 placeholder="John Doe"
-                                value={form.name}
-                                onChange={handleChange}
-                                className="w-full border-b border-gray-200 focus:border-amber-400 bg-transparent py-2.5 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200"
+                                {...register("name")}
+                                className={`w-full border-b bg-transparent py-2.5 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200 ${
+                                    !isLogin && "name" in errors && errors.name ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-amber-400"
+                                }`}
                             />
+                            {!isLogin && "name" in errors && errors.name && (
+                                <p className="text-xs text-red-500 font-medium">{errors.name.message}</p>
+                            )}
                         </div>
                     </div>
 
                     <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Email</label>
                         <input
-                            name="email"
                             type="email"
                             placeholder="you@example.com"
-                            value={form.email}
-                            onChange={handleChange}
-                            required
-                            className="w-full border-b border-gray-200 focus:border-amber-400 bg-transparent py-2.5 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200"
+                            {...register("email")}
+                            className={`w-full border-b bg-transparent py-2.5 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200 ${
+                                errors.email ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-amber-400"
+                            }`}
                         />
+                        {errors.email && (
+                            <p className="text-xs text-red-500 font-medium">{errors.email.message}</p>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-1.5">
@@ -234,13 +250,12 @@ export default function Auth() {
                         </div>
                         <div className="relative">
                             <input
-                                name="password"
                                 type={showPassword ? "text" : "password"}
                                 placeholder={isLogin ? "••••••••" : "Min. 8 characters"}
-                                value={form.password}
-                                onChange={handleChange}
-                                required
-                                className="w-full border-b border-gray-200 focus:border-amber-400 bg-transparent py-2.5 pr-8 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200"
+                                {...register("password")}
+                                className={`w-full border-b bg-transparent py-2.5 pr-8 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200 ${
+                                    errors.password ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-amber-400"
+                                }`}
                             />
                             <button
                                 type="button"
@@ -250,6 +265,9 @@ export default function Auth() {
                                 {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                             </button>
                         </div>
+                        {errors.password && (
+                            <p className="text-xs text-red-500 font-medium">{errors.password.message}</p>
+                        )}
                     </div>
 
                     <button
