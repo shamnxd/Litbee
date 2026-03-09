@@ -71,8 +71,7 @@ Ensure you have a MongoDB instance running. If using a local instance, it typica
    SMTP_SECURE=true
    SMTP_USER=your_smtp_email@gmail.com
    SMTP_PASS=your_smtp_app_password
-   REDIS_HOST=localhost
-   REDIS_PORT=6379
+   REDIS_URL="redis://your_redis_connection_string_here"
    ```
 
 4. Run the API Server:
