@@ -6,6 +6,8 @@ import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { UrlsModule } from './urls/urls.module';
+import { MailModule } from './mail/mail.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -25,8 +27,10 @@ import { UrlsModule } from './urls/urls.module';
     AuthModule,
     UsersModule,
     UrlsModule,
+    MailModule,
+    RedisModule,
   ],
 
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}
