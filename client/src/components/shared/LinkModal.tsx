@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { urlService } from "@/services/urlService";
 import { cn } from "@/lib/utils";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { urlShortenerSchema, type UrlShortenerFormData } from "@/lib/validation";
 
 interface Tag {
     name: string;
@@ -45,6 +48,49 @@ export const LinkModal = ({
     const [isValidating, setIsValidating] = useState(false);
     const debouncedSlug = useDebounce(customSlug, 500);
 
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setValue,
+        watch,
+    } = useForm<UrlShortenerFormData>({
+        resolver: zodResolver(urlShortenerSchema),
+        defaultValues: {
+            longUrl,
+            customSlug,
+        },
+    });
+
+    const onFormSubmit = () => {
+        // Trigger the parent onSubmit with a synthetic event
+        const event = new Event("submit", { bubbles: true, cancelable: true }) as any;
+        onSubmit(event);
+    };
+    useEffect(() => {
+        setValue("longUrl", longUrl);
+    }, [longUrl, setValue]);
+
+    useEffect(() => {
+        setValue("customSlug", customSlug);
+    }, [customSlug, setValue]);
+
+    // Watch form values to sync back to parent
+    const watchedLongUrl = watch("longUrl");
+    const watchedCustomSlug = watch("customSlug");
+
+    useEffect(() => {
+        if (watchedLongUrl !== longUrl) {
+            setLongUrl(watchedLongUrl || "");
+        }
+    }, [watchedLongUrl, setLongUrl, longUrl]);
+
+    useEffect(() => {
+        if (watchedCustomSlug !== customSlug) {
+            setCustomSlug(watchedCustomSlug || "");
+        }
+    }, [watchedCustomSlug, setCustomSlug, customSlug]);
+
     useEffect(() => {
         const checkSlug = async () => {
             if (!debouncedSlug || debouncedSlug.trim() === "") {
@@ -83,7 +129,7 @@ export const LinkModal = ({
         setTags(tags.filter(t => t.name !== tagName));
     };
 
-    const canSubmit = !isValidating && (isAvailable === null || isAvailable === true);
+    const canSubmit = !isValidating && (isAvailable === null || isAvailable === true) && Object.keys(errors).length === 0;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm shadow-2xl">
@@ -95,17 +141,23 @@ export const LinkModal = ({
                     <X size={20} />
                 </button>
                 <h2 className="text-xl font-bold mb-6 text-gray-900 tracking-tight">{title}</h2>
-                <form onSubmit={onSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
                     <div>
                         <label className="block text-sm font-bold text-gray-700 mb-1.5 ml-1">Destination URL</label>
                         <input
                             type="url"
-                            required
                             placeholder="https://example.com/long-url"
-                            value={longUrl}
-                            onChange={(e) => setLongUrl(e.target.value)}
-                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-amber-400 focus:ring-4 focus:ring-amber-400/10 text-sm transition-all focus:bg-white text-gray-900 placeholder:text-gray-400"
+                            {...register("longUrl")}
+                            className={cn(
+                                "w-full bg-gray-50 border rounded-xl px-4 py-3 outline-none text-sm transition-all focus:bg-white text-gray-900 placeholder:text-gray-400",
+                                errors.longUrl
+                                    ? "border-red-400 focus:border-red-400 focus:ring-red-400/10"
+                                    : "border-gray-200 focus:border-amber-400 focus:ring-amber-400/10"
+                            )}
                         />
+                        {errors.longUrl && (
+                            <p className="text-xs text-red-500 font-medium mt-1">{errors.longUrl.message}</p>
+                        )}
                     </div>
                     <div>
                         <div className="flex items-center justify-between mb-1.5 ml-1">
@@ -123,29 +175,32 @@ export const LinkModal = ({
                             <input
                                 type="text"
                                 placeholder="custom-slug"
-                                value={customSlug}
-                                onChange={(e) => setCustomSlug(e.target.value)}
+                                {...register("customSlug")}
                                 className={cn(
-                                    "w-full bg-gray-50 border border-gray-200 rounded-xl pl-[76px] pr-4 py-3 outline-none text-sm transition-all focus:bg-white text-gray-900 placeholder:text-gray-400 font-medium",
-                                    isAvailable === true && "border-green-500 focus:border-green-500 focus:ring-green-500/10",
-                                    isAvailable === false && "border-red-500 focus:border-red-500 focus:ring-red-500/10",
-                                    isAvailable === null && "focus:border-amber-400 focus:ring-amber-400/10"
+                                    "w-full bg-gray-50 border rounded-xl pl-[76px] pr-4 py-3 outline-none text-sm transition-all focus:bg-white text-gray-900 placeholder:text-gray-400 font-medium",
+                                    errors.customSlug && "border-red-400 focus:border-red-400 focus:ring-red-400/10",
+                                    isAvailable === true && !errors.customSlug && "border-green-500 focus:border-green-500 focus:ring-green-500/10",
+                                    isAvailable === false && !errors.customSlug && "border-red-500 focus:border-red-500 focus:ring-red-500/10",
+                                    isAvailable === null && !errors.customSlug && "border-gray-200 focus:border-amber-400 focus:ring-amber-400/10"
                                 )}
                             />
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-                                {isAvailable === true && (
+                                {isAvailable === true && !errors.customSlug && (
                                     <span className="flex items-center gap-1 text-[10px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
                                         <CheckCircle2 size={10} strokeWidth={3} /> Available
                                     </span>
                                 )}
-                                {isAvailable === false && (
+                                {isAvailable === false && !errors.customSlug && (
                                     <span className="flex items-center gap-1 text-[10px] font-black text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
                                         <AlertCircle size={10} strokeWidth={3} /> Taken
                                     </span>
                                 )}
                             </div>
                         </div>
-                        {isAvailable === false && (
+                        {errors.customSlug && (
+                            <p className="text-[10px] text-red-500 mt-1.5 font-bold ml-1">{errors.customSlug.message}</p>
+                        )}
+                        {isAvailable === false && !errors.customSlug && (
                             <p className="text-[10px] text-red-500 mt-1.5 font-bold ml-1 flex items-center gap-1">
                                 This slug is already in use by another link.
                             </p>

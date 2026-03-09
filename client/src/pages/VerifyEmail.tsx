@@ -6,11 +6,13 @@ import { Loader2, ArrowRight, RefreshCw } from "lucide-react";
 import { authService } from "@/services/authService";
 import { verifySuccess } from "@/store/slices/authSlice";
 import type { RootState } from "@/store";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { verifyEmailSchema, type VerifyEmailFormData } from "@/lib/validation";
 
 import { isAxiosError } from "axios";
 
 export default function VerifyEmail() {
-    const [otp, setOtp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isResending, setIsResending] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
@@ -22,6 +24,17 @@ export default function VerifyEmail() {
 
     const user = useSelector((state: RootState) => state.auth.user);
     const email = location.state?.email || user?.email;
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        watch,
+    } = useForm<VerifyEmailFormData>({
+        resolver: zodResolver(verifyEmailSchema),
+    });
+
+    const otpValue = watch("otp");
 
     const [timer, setTimer] = useState(0);
 
@@ -43,19 +56,13 @@ export default function VerifyEmail() {
         }
     }, [email, navigate]);
 
-    const handleVerify = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!otp || otp.length !== 6) {
-            setErrorMsg("Please enter a valid 6-digit OTP");
-            return;
-        }
-
+    const onSubmit = async (data: VerifyEmailFormData) => {
         setIsLoading(true);
         setErrorMsg("");
         setSuccessMsg("");
 
         try {
-            const response = await authService.verifyEmail(email, otp);
+            const response = await authService.verifyEmail(email, data.otp);
             dispatch(verifySuccess({
                 user: response.user,
                 token: response.access_token
@@ -108,7 +115,7 @@ export default function VerifyEmail() {
                     </p>
                 </div>
 
-                <form onSubmit={handleVerify} className="space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                     {errorMsg && (
                         <div className="bg-red-50 text-red-500 text-sm px-4 py-3 rounded-xl border border-red-100 animate-in fade-in slide-in-from-top-1">
                             {errorMsg}
@@ -125,16 +132,20 @@ export default function VerifyEmail() {
                             type="text"
                             maxLength={6}
                             placeholder="000000"
-                            value={otp}
-                            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                            className="w-full text-center text-4xl tracking-[1rem] font-black border-b-2 border-gray-200 focus:border-amber-400 outline-none py-4 bg-transparent transition-all duration-300 placeholder:text-gray-100"
+                            {...register("otp")}
+                            className={`w-full text-center text-4xl tracking-[1rem] font-black border-b-2 outline-none py-4 bg-transparent transition-all duration-300 placeholder:text-gray-100 ${
+                                errors.otp ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-amber-400"
+                            }`}
                             autoFocus
                         />
+                        {errors.otp && (
+                            <p className="text-xs text-red-500 font-medium text-center mt-2">{errors.otp.message}</p>
+                        )}
                     </div>
 
                     <button
                         type="submit"
-                        disabled={isLoading || otp.length !== 6}
+                        disabled={isLoading || !otpValue || otpValue.length !== 6}
                         className="w-full flex items-center justify-center gap-2 bg-[#0a0a0a] hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-4 transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98]"
                     >
                         {isLoading ? (

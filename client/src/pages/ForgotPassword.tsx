@@ -3,22 +3,33 @@ import { Link } from "react-router-dom";
 import { authService } from "@/services/authService";
 import { LitbeeLogo } from "@/components/shared/LitbeeLogo";
 import { ArrowRight, Loader2, Mail, CheckCircle2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/lib/validation";
 
 import { isAxiosError } from "axios";
 
 export default function ForgotPassword() {
-    const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [isSent, setIsSent] = useState(false);
+    const [sentEmail, setSentEmail] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ForgotPasswordFormData>({
+        resolver: zodResolver(forgotPasswordSchema),
+    });
+
+    const onSubmit = async (data: ForgotPasswordFormData) => {
         setIsLoading(true);
         setErrorMsg("");
+        setSentEmail(data.email);
 
         try {
-            await authService.forgotPassword(email);
+            await authService.forgotPassword(data.email);
             setIsSent(true);
         } catch (error: unknown) {
             if (isAxiosError(error)) {
@@ -45,7 +56,7 @@ export default function ForgotPassword() {
                 </div>
 
                 {!isSent ? (
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
                         {errorMsg && (
                             <div className="bg-red-50 text-red-500 text-sm px-4 py-2 rounded-xl">
                                 {errorMsg}
@@ -59,12 +70,15 @@ export default function ForgotPassword() {
                                 <input
                                     type="email"
                                     placeholder="you@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    className="w-full border-b border-gray-200 focus:border-amber-400 bg-transparent py-3 pl-7 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200"
+                                    {...register("email")}
+                                    className={`w-full border-b bg-transparent py-3 pl-7 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200 ${
+                                        errors.email ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-amber-400"
+                                    }`}
                                 />
                             </div>
+                            {errors.email && (
+                                <p className="text-xs text-red-500 font-medium">{errors.email.message}</p>
+                            )}
                         </div>
 
                         <button
@@ -90,7 +104,7 @@ export default function ForgotPassword() {
                             <CheckCircle2 size={32} />
                         </div>
                         <p className="text-gray-500 mb-8 px-4">
-                            If an account exists for <strong className="text-gray-900">{email}</strong>, you'll receive an email with instructions shortly.
+                            If an account exists for <strong className="text-gray-900">{sentEmail}</strong>, you'll receive an email with instructions shortly.
                         </p>
                         <button
                             onClick={() => setIsSent(false)}

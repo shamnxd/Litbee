@@ -3,6 +3,9 @@ import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { authService } from "@/services/authService";
 import { LitbeeLogo } from "@/components/shared/LitbeeLogo";
 import { ArrowRight, Loader2, Eye, EyeOff, CheckCircle2, Lock } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { resetPasswordSchema, type ResetPasswordFormData } from "@/lib/validation";
 
 import { isAxiosError } from "axios";
 
@@ -11,12 +14,18 @@ export default function ResetPassword() {
     const navigate = useNavigate();
     const token = searchParams.get("token");
 
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [isReset, setIsReset] = useState(false);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ResetPasswordFormData>({
+        resolver: zodResolver(resetPasswordSchema),
+    });
 
     useEffect(() => {
         if (!token) {
@@ -24,25 +33,14 @@ export default function ResetPassword() {
         }
     }, [token]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onSubmit = async (data: ResetPasswordFormData) => {
         if (!token) return;
-
-        if (password.length < 8) {
-            setErrorMsg("Password must be at least 8 characters.");
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            setErrorMsg("Passwords do not match.");
-            return;
-        }
 
         setIsLoading(true);
         setErrorMsg("");
 
         try {
-            await authService.resetPassword(token, password);
+            await authService.resetPassword(token, data.password);
             setIsReset(true);
             setTimeout(() => {
                 navigate("/auth");
@@ -72,7 +70,7 @@ export default function ResetPassword() {
                 </div>
 
                 {!isReset ? (
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
                         {errorMsg && (
                             <div className="bg-red-50 text-red-500 text-sm px-4 py-2 rounded-xl">
                                 {errorMsg}
@@ -86,10 +84,10 @@ export default function ResetPassword() {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="Min. 8 characters"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    className="w-full border-b border-gray-200 focus:border-amber-400 bg-transparent py-3 pl-7 pr-8 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200"
+                                    {...register("password")}
+                                    className={`w-full border-b bg-transparent py-3 pl-7 pr-8 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200 ${
+                                        errors.password ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-amber-400"
+                                    }`}
                                 />
                                 <button
                                     type="button"
@@ -99,6 +97,9 @@ export default function ResetPassword() {
                                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                                 </button>
                             </div>
+                            {errors.password && (
+                                <p className="text-xs text-red-500 font-medium">{errors.password.message}</p>
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-1.5">
@@ -108,12 +109,15 @@ export default function ResetPassword() {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="Repeat your password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    required
-                                    className="w-full border-b border-gray-200 focus:border-amber-400 bg-transparent py-3 pl-7 pr-8 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200"
+                                    {...register("confirmPassword")}
+                                    className={`w-full border-b bg-transparent py-3 pl-7 pr-8 text-sm text-[#0a0a0a] placeholder-gray-300 outline-none transition-colors duration-200 ${
+                                        errors.confirmPassword ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-amber-400"
+                                    }`}
                                 />
                             </div>
+                            {errors.confirmPassword && (
+                                <p className="text-xs text-red-500 font-medium">{errors.confirmPassword.message}</p>
+                            )}
                         </div>
 
                         <button
