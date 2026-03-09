@@ -61,10 +61,10 @@ export default function Landing() {
                             <span className="text-gray-300 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-amber-400" /> Analytics</span>
                         </div>
 
-                        
+
                     </div>
 
-                    <div className="flex justify-center lg:justify-end">
+                    <div className="flex hidden lg:flex justify-center lg:justify-end">
                         <DashboardMockup />
                     </div>
                 </div>
