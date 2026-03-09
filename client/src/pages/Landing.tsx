@@ -49,8 +49,9 @@ export default function Landing() {
                             <span className="text-amber-400">Simplify Sharing.</span>
                         </h1>
 
-                        <p className="text-gray-300 text-lg sm:text-sm font-semibold flex items-center gap-2">
-                            Fast <span className="text-amber-400">•</span> Secure <span className="text-amber-400">•</span> Trackable URL Shortener
+                        <p className="text-gray-300 text-lg !text-[16px] font-semibold flex items-center gap-3">
+                            <BarChart3 className="w-5 h-5 text-amber-400" />
+                            Trackable URL Shortener with Analytics
                         </p>
 
                         <UrlShortener />
