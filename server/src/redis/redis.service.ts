@@ -6,14 +6,19 @@ import Redis from 'ioredis';
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private redis: Redis;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   onModuleInit() {
-    this.redis = new Redis({
-      host: this.configService.get<string>('REDIS_HOST', 'localhost'),
-      port: this.configService.get<number>('REDIS_PORT', 6379),
-      password: this.configService.get<string>('REDIS_PASS'),
-    });
+    const redisUrl = this.configService.get<string>('REDIS_URL');
+    if (redisUrl) {
+      this.redis = new Redis(redisUrl);
+    } else {
+      this.redis = new Redis({
+        host: this.configService.get<string>('REDIS_HOST', 'localhost'),
+        port: this.configService.get<number>('REDIS_PORT', 6379),
+        password: this.configService.get<string>('REDIS_PASS'),
+      });
+    }
   }
 
   async onModuleDestroy() {
