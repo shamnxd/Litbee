@@ -7,7 +7,7 @@ export default function RedirectHandler() {
 
     useEffect(() => {
         if (code) {
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const apiBase = import.meta.env.VITE_API_URL;
             window.location.href = `${apiBase}/${code}`;
         }
     }, [code]);
