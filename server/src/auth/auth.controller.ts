@@ -96,7 +96,7 @@ export class AuthController {
     @Req() req: Request & { user: { sub: string } },
     @Res({ passthrough: true }) res: Response,
   ) {
-    res.clearCookie('refresh_token');
+    this.clearRefreshTokenCookie(res);
     return this.authService.logout(req.user.sub);
   }
 
@@ -122,14 +122,21 @@ export class AuthController {
   }
 
   private setRefreshTokenCookie(res: Response, refreshToken: string) {
-    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: 'none',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
-      domain: isProduction ? '.shamnadt.in' : undefined,
+    });
+  }
+
+  private clearRefreshTokenCookie(res: Response) {
+    res.clearCookie('refresh_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
     });
   }
 }
