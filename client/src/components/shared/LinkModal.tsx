@@ -27,11 +27,11 @@ export const LinkModal = ({
     const [currentTag, setCurrentTag] = useState("");
     const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
     const [isValidating, setIsValidating] = useState(false);
-    const debouncedSlug = useDebounce(customSlug, 500);
 
     const {
         register,
         handleSubmit,
+        watch,
         formState: { errors },
         reset,
     } = useForm<UrlShortenerFormData>({
@@ -41,6 +41,13 @@ export const LinkModal = ({
             customSlug: '',
         },
     });
+
+    const slugValue = watch("customSlug");
+    const debouncedSlug = useDebounce(slugValue || "", 500);
+
+    useEffect(() => {
+        setCustomSlug(slugValue || "");
+    }, [slugValue, setCustomSlug]);
 
     const onFormSubmit = (data: UrlShortenerFormData) => {
         setLongUrl(data.longUrl || '');
@@ -108,7 +115,7 @@ export const LinkModal = ({
                     <X size={20} />
                 </button>
                 <h2 className="text-xl font-bold mb-6 text-gray-900 tracking-tight">{title}</h2>
-                <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4" noValidate>
                     <div>
                         <label className="block text-sm font-bold text-gray-700 mb-1.5 ml-1">Destination URL</label>
                         <input
