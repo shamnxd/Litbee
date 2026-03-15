@@ -4,7 +4,7 @@ import { LitbeeLogo } from "@/components/shared/LitbeeLogo";
 import { Eye, EyeOff, ArrowRight, Loader2 } from "lucide-react";
 import type { AuthMode } from "@/types/auth.types";
 import { useDispatch, useSelector } from "react-redux";
-import { loginStart, loginSuccess, loginFailure, verifySuccess } from "@/store/slices/authSlice";
+import { loginStart, loginSuccess, loginFailure, verifySuccess, logout } from "@/store/slices/authSlice";
 import { authService } from "@/services/authService";
 import { useGoogleLogin, type TokenResponse } from "@react-oauth/google";
 import { useForm, type UseFormRegister, type FieldErrors } from "react-hook-form";
@@ -20,18 +20,25 @@ import { isAxiosError } from "axios";
 type AuthFormData = LoginFormData & SignupFormData & VerifyEmailFormData;
 
 export default function Auth() {
-    const [mode, setMode] = useState<AuthMode>("login");
+    const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+    const [mode, setMode] = useState<AuthMode>(() => {
+        if (isAuthenticated && user && !user.isVerified) return "verify";
+        return "login";
+    });
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
     const [successMsg, setSuccessMsg] = useState("");
-    const [verificationEmail, setVerificationEmail] = useState("");
+    const [verificationEmail, setVerificationEmail] = useState(() => {
+        if (isAuthenticated && user && !user.isVerified) return user.email;
+        return "";
+    });
     const [timer, setTimer] = useState(60);
     const [isResending, setIsResending] = useState(false);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
     const {
         register,
@@ -48,13 +55,6 @@ export default function Auth() {
     });
 
     const otpValue = watch("otp");
-
-    useEffect(() => {
-        if (isAuthenticated && user && !user.isVerified) {
-            setMode("verify");
-            setVerificationEmail(user.email);
-        }
-    }, [isAuthenticated, user]);
 
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
@@ -150,7 +150,16 @@ export default function Auth() {
         }
     };
 
-    const switchMode = (next: AuthMode) => {
+    const switchMode = async (next: AuthMode) => {
+        if (isAuthenticated && (next === "login" || next === "signup")) {
+            try {
+                await authService.logout();
+            } catch (err) {
+                console.error("Logout failed during switch", err);
+            }
+            dispatch(logout());
+            setVerificationEmail("");
+        }
         setMode(next);
         reset();
         setShowPassword(false);
