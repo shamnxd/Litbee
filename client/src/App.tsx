@@ -9,7 +9,6 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "./store/slices/authSlice";
 import { Loader2 } from "lucide-react";
 import RedirectHandler from "@/pages/RedirectHandler";
-import VerifyEmail from "@/pages/VerifyEmail";
 import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 
@@ -63,8 +62,6 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/my-links" element={<MyLinks />} />
         </Route>
-
-        <Route path="/verify-email" element={<VerifyEmail />} />
 
         <Route path="/:code" element={<RedirectHandler />} />
       </Routes>

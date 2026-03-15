@@ -13,7 +13,7 @@ const ProtectedRoute = ({ redirectPath = '/login', isAllowed }: ProtectedRoutePr
 
     // Email verification check (Except for the verification page itself, but verification page isn't inside ProtectedRoute usually)
     if (user && !user.isVerified) {
-        return <Navigate replace to="/verify-email" />;
+        return <Navigate replace to="/auth" />;
     }
 
     // Custom isAllowed check
