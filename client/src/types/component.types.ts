@@ -49,12 +49,12 @@ export interface Tag {
 export interface LinkModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (e: React.FormEvent) => void;
+    onSubmit: (data: { longUrl: string, customSlug?: string }) => void;
     title: string;
     buttonText: string;
     longUrl: string;
     setLongUrl: (val: string) => void;
-    customSlug: string;
+    customSlug?: string;
     setCustomSlug: (val: string) => void;
     tags: Tag[];
     setTags: (tags: Tag[]) => void;

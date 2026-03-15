@@ -30,7 +30,10 @@ api.interceptors.response.use(
     },
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        const authRoutes = ['/auth/login', '/auth/register', '/auth/verify-email', '/auth/refresh', '/auth/forgot-password', '/auth/reset-password', '/auth/google-login', '/auth/send-otp'];
+        const isAuthRoute = authRoutes.some(route => originalRequest.url?.includes(route));
+
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
             originalRequest._retry = true;
             try {
                 const { user } = store.getState().auth;

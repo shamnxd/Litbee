@@ -70,18 +70,25 @@ export const urlShortenerSchema = z.object({
   longUrl: z
     .string()
     .min(1, "URL is required")
-    .url("Please enter a valid URL")
-    .refine(
-      (url) => {
-        try {
-          const parsed = new URL(url);
-          return parsed.protocol === "http:" || parsed.protocol === "https:";
-        } catch {
-          return false;
-        }
-      },
-      "URL must start with http:// or https://"
-    ),
+    .refine((val) => {
+      let testVal = val.trim();
+      if (testVal.length > 0 && !/^https?:\/\//i.test(testVal)) {
+        testVal = `https://${testVal}`;
+      }
+      try {
+        const parsed = new URL(testVal);
+        return parsed.protocol === "http:" || parsed.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }, "Please enter a valid URL")
+    .transform((val) => {
+      const trimmed = val.trim();
+      if (trimmed.length > 0 && !/^https?:\/\//i.test(trimmed)) {
+        return `https://${trimmed}`;
+      }
+      return trimmed;
+    }),
   customSlug: z
     .string()
     .optional()

@@ -5,7 +5,7 @@ import { urlService } from "@/services/urlService";
 import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { urlShortenerSchema, type UrlShortenerFormData } from "@/lib/validation";
+import { urlShortenerSchema } from "@/lib/validation";
 
 import type { LinkModalProps } from "@/types/component.types";
 
@@ -34,7 +34,7 @@ export const LinkModal = ({
         watch,
         formState: { errors },
         reset,
-    } = useForm<UrlShortenerFormData>({
+    } = useForm({
         resolver: zodResolver(urlShortenerSchema),
         defaultValues: {
             longUrl: '',
@@ -45,15 +45,10 @@ export const LinkModal = ({
     const slugValue = watch("customSlug");
     const debouncedSlug = useDebounce(slugValue || "", 500);
 
-    useEffect(() => {
-        setCustomSlug(slugValue || "");
-    }, [slugValue, setCustomSlug]);
-
-    const onFormSubmit = (data: UrlShortenerFormData) => {
+    const onFormSubmit = (data: any) => {
         setLongUrl(data.longUrl || '');
         setCustomSlug(data.customSlug || '');
-        const event = new Event("submit", { bubbles: true, cancelable: true }) as unknown as React.FormEvent<HTMLFormElement>;
-        onSubmit(event);
+        onSubmit(data);
     };
 
     useEffect(() => {
@@ -63,7 +58,8 @@ export const LinkModal = ({
                 customSlug,
             });
         }
-    }, [isOpen, longUrl, customSlug, reset]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     useEffect(() => {
         const checkSlug = async () => {
@@ -119,7 +115,7 @@ export const LinkModal = ({
                     <div>
                         <label className="block text-sm font-bold text-gray-700 mb-1.5 ml-1">Destination URL</label>
                         <input
-                            type="url"
+                            type="text"
                             placeholder="https://example.com/long-url"
                             {...register("longUrl")}
                             className={cn(
@@ -149,7 +145,11 @@ export const LinkModal = ({
                             <input
                                 type="text"
                                 placeholder="custom-slug"
-                                {...register("customSlug")}
+                                {...register("customSlug", {
+                                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                                        e.target.value = e.target.value.replace(/[^a-zA-Z0-9\-_]/g, '');
+                                    }
+                                })}
                                 className={cn(
                                     "w-full bg-gray-50 border rounded-xl pl-[76px] pr-4 py-3 outline-none text-sm transition-all focus:bg-white text-gray-900 placeholder:text-gray-400 font-medium",
                                     errors.customSlug && "border-red-400 focus:border-red-400 focus:ring-red-400/10",
