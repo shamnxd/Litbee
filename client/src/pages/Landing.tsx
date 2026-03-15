@@ -18,7 +18,7 @@ import { FEATURES, STEPS, TESTIMONIALS, FAQS } from "@/data/landingData";
 
 export default function Landing() {
     return (
-        <div className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <div className="min-h-screen bg-[#F5F5F5] text-gray-900 overflow-x-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
             <Navbar />
 
             <section className="relative min-h-[100vh] flex items-center pt-24 pb-20 overflow-hidden">
@@ -34,32 +34,32 @@ export default function Landing() {
                         <div className="flex items-center gap-6 pt-6">
                             <div className="flex -space-x-2">
                                 {["A", "S", "P", "D"].map((l, i) => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-[#0a0a0a] bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black text-xs font-bold">
+                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-[#F5F5F5] bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-black text-xs font-bold">
                                         {l}
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-sm text-gray-400">
-                                <span className="text-white font-semibold">4.9 ★</span> rated by 2,000+ reviews
+                            <p className="text-sm text-gray-500">
+                                <span className="text-gray-900 font-semibold">4.9 ★</span> rated by 2,000+ reviews
                             </p>
                         </div>
 
                         <h1 className="text-5xl lg:text-6xl xl:text-7xl font-black leading-[1.05] tracking-tight">
                             Shorten Links,<br />
-                            <span className="text-amber-400">Simplify Sharing.</span>
+                            <span className="text-amber-500">Simplify Sharing.</span>
                         </h1>
 
-                        <p className="text-gray-300 text-lg !text-[16px] font-semibold flex items-center gap-3">
-                            <BarChart3 className="w-5 h-5 text-amber-400" />
+                        <p className="text-gray-600 text-lg !text-[16px] font-semibold flex items-center gap-3">
+                            <BarChart3 className="w-5 h-5 text-amber-500" />
                             Trackable URL Shortener with Analytics
                         </p>
 
                         <UrlShortener />
 
                         <div className="flex items-center gap-6 pt-2 font-medium">
-                            <span className="text-gray-300 flex items-center gap-2"><Zap className="w-4 h-4 text-amber-400" /> Instant</span>
-                            <span className="text-gray-300 flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-amber-400" /> Secure</span>
-                            <span className="text-gray-300 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-amber-400" /> Analytics</span>
+                            <span className="text-gray-600 flex items-center gap-2"><Zap className="w-4 h-4 text-amber-500" /> Instant</span>
+                            <span className="text-gray-600 flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-amber-500" /> Secure</span>
+                            <span className="text-gray-600 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-amber-500" /> Analytics</span>
                         </div>
 
 
@@ -75,7 +75,7 @@ export default function Landing() {
                 </div>
             </section>
 
-            <section id="features" className="py-24 px-6 bg-slate-50">
+            <section id="features" className="py-24 px-6 bg-white border-t border-gray-100">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-14">
                         <p className="text-amber-500 text-sm font-semibold uppercase tracking-widest mb-3">Features</p>
@@ -159,7 +159,7 @@ export default function Landing() {
                 </div>
             </section>
 
-            <footer className="border-t border-white/5 bg-[#0a0a0a] pt-16 pb-8 px-6">
+            <footer className="border-t border-gray-200 bg-white pt-16 pb-8 px-6">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid md:grid-cols-5 gap-10 mb-12">
                         <div className="md:col-span-2">
@@ -172,7 +172,7 @@ export default function Landing() {
                             </p>
                             <div className="flex items-center gap-3 mt-5">
                                 {[Twitter, Github, Linkedin].map((Icon, i) => (
-                                    <a key={i} href="#" className="w-9 h-9 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all">
+                                    <a key={i} href="#" className="w-9 h-9 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all">
                                         <Icon className="w-4 h-4" />
                                     </a>
                                 ))}
@@ -185,17 +185,17 @@ export default function Landing() {
                             { title: "Legal", links: ["Privacy Policy", "Terms of Service", "Cookie Policy", "GDPR"] },
                         ].map(({ title, links }) => (
                             <div key={title}>
-                                <p className="text-white font-semibold text-sm mb-4">{title}</p>
+                                <p className="text-gray-900 font-bold text-sm mb-4">{title}</p>
                                 <ul className="space-y-2.5">
                                     {links.map((l) => (
-                                        <li key={l}><a href="#" className="text-gray-500 hover:text-gray-300 text-sm transition-colors">{l}</a></li>
+                                        <li key={l}><a href="#" className="text-gray-500 hover:text-gray-900 text-sm transition-colors">{l}</a></li>
                                     ))}
                                 </ul>
                             </div>
                         ))}
                     </div>
 
-                    <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div className="border-t border-gray-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
                         <p className="text-gray-600 text-sm">© 2025 Litbee. All rights reserved.</p>
                         <p className="text-gray-600 text-sm flex items-center gap-1">Made with <span className="text-amber-400">♥</span> in India</p>
                     </div>
