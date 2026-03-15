@@ -142,11 +142,10 @@ export default function MyLinks() {
         setTimeout(() => setCopiedId(null), 2000);
     };
 
-    const handleCreateLink = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleCreateLink = async (data: { longUrl: string, customSlug?: string }) => {
         setIsSubmitLoading(true);
         try {
-            const response = await urlService.create({ longUrl, customSlug: customSlug || undefined, tags });
+            const response = await urlService.create({ longUrl: data.longUrl, customSlug: data.customSlug || undefined, tags });
             const newItem: LinkItem = {
                 id: response.data._id,
                 shortUrl: `${import.meta.env.VITE_SHORT_URL_BASE || 'litbee.io'}/${response.data.shortCode}`,
@@ -169,12 +168,11 @@ export default function MyLinks() {
         }
     };
 
-    const handleEditLink = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleEditLink = async (data: { longUrl: string, customSlug?: string }) => {
         if (!selectedLink) return;
         setIsSubmitLoading(true);
         try {
-            const response = await urlService.update(selectedLink.id, { longUrl, customSlug: customSlug || undefined, tags });
+            const response = await urlService.update(selectedLink.id, { longUrl: data.longUrl, customSlug: data.customSlug || undefined, tags });
             const updatedItem: LinkItem = {
                 ...selectedLink,
                 longUrl: response.data.longUrl,
@@ -305,10 +303,10 @@ export default function MyLinks() {
                                             <ArrowUpRight size={14} className="text-gray-400" /> {link.clicks} clicks
                                         </div>
                                     </div>
-                                    <div className="mb-6">
-                                        <h3 className="font-bold text-[17px] mb-1.5 text-gray-900 flex items-center gap-2">
-                                            {link.shortUrl}
-                                            {link.expired && <span className="text-xs text-red-500 font-medium px-1.5 py-0.5 bg-red-50 rounded">Expired</span>}
+                                    <div className="mb-6 w-full min-w-0">
+                                        <h3 className="font-bold text-[17px] mb-1.5 text-gray-900 flex items-center gap-2 w-full overflow-hidden">
+                                            <span className="truncate" title={link.shortUrl}>{link.shortUrl}</span>
+                                            {link.expired && <span className="text-xs text-red-500 font-medium px-1.5 py-0.5 bg-red-50 rounded flex-shrink-0">Expired</span>}
                                         </h3>
                                         <p className="text-sm text-gray-500 truncate w-full" title={link.longUrl}>{link.longUrl}</p>
                                     </div>

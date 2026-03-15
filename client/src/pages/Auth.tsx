@@ -40,9 +40,9 @@ export default function Auth() {
             const data = await authService.googleLogin(token);
             dispatch(loginSuccess({ user: data.user, token: data.access_token }));
             if (data.user.isVerified) {
-                navigate("/my-links");
+                navigate("/my-links", { replace: true });
             } else {
-                navigate("/verify-email", { state: { email: data.user.email } });
+                navigate("/verify-email", { state: { email: data.user.email }, replace: true });
             }
         } catch (error: unknown) {
             let message = "Google Authentication failed.";
@@ -72,15 +72,15 @@ export default function Auth() {
                 const response = await authService.login(loginData);
                 dispatch(loginSuccess({ user: response.user, token: response.access_token }));
                 if (response.user.isVerified) {
-                    navigate("/my-links");
+                    navigate("/my-links", { replace: true });
                 } else {
-                    navigate("/verify-email", { state: { email: response.user.email } });
+                    navigate("/verify-email", { state: { email: response.user.email }, replace: true });
                 }
             } else {
                 const signupData = data as SignupFormData;
                 const response = await authService.signup(signupData);
                 dispatch(loginSuccess({ user: response.user, token: response.access_token }));
-                navigate("/verify-email", { state: { email: response.user.email } });
+                navigate("/verify-email", { state: { email: response.user.email }, replace: true });
             }
         } catch (error: unknown) {
             let message = "Authentication failed.";

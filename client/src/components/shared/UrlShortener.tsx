@@ -29,10 +29,15 @@ export const UrlShortener = () => {
             return;
         }
 
+        let formattedUrl = url.trim();
+        if (!/^https?:\/\//i.test(formattedUrl)) {
+            formattedUrl = `https://${formattedUrl}`;
+        }
+
         setError("");
         setLoading(true);
         try {
-            const response = await urlService.create({ longUrl: url });
+            const response = await urlService.create({ longUrl: formattedUrl });
             const shortBase = import.meta.env.VITE_SHORT_URL_BASE || 'litbee.io';
             const shortUrl = `${shortBase}/${response.data.shortCode}`;
             setResult(shortUrl);
@@ -53,15 +58,15 @@ export const UrlShortener = () => {
     return (
         <div className="w-full max-w-2xl">
             <form onSubmit={handleShorten} noValidate>
-                <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0 sm:bg-[#1c1c1c] sm:border sm:border-white/10 sm:rounded-2xl sm:p-1.5 sm:focus-within:border-amber-400/50 sm:transition-colors sm:duration-300">
-                    <div className="flex items-center gap-2 flex-1 bg-[#1c1c1c] border border-white/10 rounded-xl px-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:px-4">
-                        <Link2 className="w-4 h-4 text-amber-400/60 flex-shrink-0" />
+                <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0 sm:bg-white sm:border sm:border-gray-200 sm:shadow-sm sm:rounded-2xl sm:p-1.5 sm:focus-within:border-amber-400 sm:transition-colors sm:duration-300">
+                    <div className="flex items-center gap-2 flex-1 bg-white border border-gray-200 rounded-xl px-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:px-4">
+                        <Link2 className="w-4 h-4 text-amber-500 flex-shrink-0" />
                         <input
-                            type="url"
+                            type="text"
                             value={url}
                             onChange={(e) => { setUrl(e.target.value); setError(""); }}
                             placeholder="Paste your long URL here..."
-                            className="flex-1 bg-transparent py-3 text-sm text-white placeholder-gray-500 outline-none"
+                            className="flex-1 bg-transparent py-3 text-sm text-gray-900 placeholder-gray-400 outline-none"
                         />
                     </div>
                     <button
@@ -81,12 +86,12 @@ export const UrlShortener = () => {
                         {loading ? "Shortening..." : "Shorten"}
                     </button>
                 </div>
-                {error && <p className="text-red-400 text-xs mt-2 ml-4">{error}</p>}
+                {error && <p className="text-red-500 text-xs mt-2 ml-4 font-medium">{error}</p>}
             </form>
 
             <p className="text-gray-500 text-xs mt-4 text-center lg:text-left">
                 By using Litbee, you agree to our{" "}
-                <a href="#" className="text-gray-400 hover:text-amber-400 transition-colors underline">Terms of Service</a>
+                <a href="#" className="text-gray-600 hover:text-amber-500 transition-colors underline font-medium">Terms of Service</a>
             </p>
 
             <LinkSuccessModal

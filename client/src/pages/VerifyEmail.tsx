@@ -36,7 +36,7 @@ export default function VerifyEmail() {
 
     const otpValue = watch("otp");
 
-    const [timer, setTimer] = useState(0);
+    const [timer, setTimer] = useState(60);
 
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
@@ -52,9 +52,11 @@ export default function VerifyEmail() {
 
     useEffect(() => {
         if (!email) {
-            navigate("/auth");
+            navigate("/auth", { replace: true });
+        } else if (user?.isVerified) {
+            navigate("/my-links", { replace: true });
         }
-    }, [email, navigate]);
+    }, [email, user, navigate]);
 
     const onSubmit = async (data: VerifyEmailFormData) => {
         setIsLoading(true);
@@ -69,7 +71,7 @@ export default function VerifyEmail() {
             }));
             setSuccessMsg("Email verified successfully! Redirecting...");
             setTimeout(() => {
-                navigate("/my-links");
+                navigate("/my-links", { replace: true });
             }, 1500);
         } catch (error: unknown) {
             if (isAxiosError(error)) {
@@ -130,9 +132,14 @@ export default function VerifyEmail() {
                     <div>
                         <input
                             type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             maxLength={6}
                             placeholder="000000"
                             {...register("otp")}
+                            onInput={(e: React.FormEvent<HTMLInputElement>) => {
+                                e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                            }}
                             className={`w-full text-center text-4xl tracking-[1rem] font-black border-b-2 outline-none py-4 bg-transparent transition-all duration-300 placeholder:text-gray-100 ${
                                 errors.otp ? "border-red-400 focus:border-red-400" : "border-gray-200 focus:border-amber-400"
                             }`}
