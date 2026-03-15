@@ -5,7 +5,7 @@ import { urlService } from "@/services/urlService";
 import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { urlShortenerSchema } from "@/lib/validation";
+import { urlShortenerSchema, type UrlShortenerFormData } from "@/lib/validation";
 
 import type { LinkModalProps } from "@/types/component.types";
 
@@ -34,7 +34,7 @@ export const LinkModal = ({
         watch,
         formState: { errors },
         reset,
-    } = useForm({
+    } = useForm<UrlShortenerFormData>({
         resolver: zodResolver(urlShortenerSchema),
         defaultValues: {
             longUrl: '',
@@ -45,7 +45,7 @@ export const LinkModal = ({
     const slugValue = watch("customSlug");
     const debouncedSlug = useDebounce(slugValue || "", 500);
 
-    const onFormSubmit = (data: any) => {
+    const onFormSubmit = (data: UrlShortenerFormData) => {
         setLongUrl(data.longUrl || '');
         setCustomSlug(data.customSlug || '');
         onSubmit(data);

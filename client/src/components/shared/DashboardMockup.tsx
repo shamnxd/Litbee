@@ -19,7 +19,7 @@ export const DashboardMockup = () => (
                 <span className="w-3 h-3 rounded-full bg-green-500/70" />
                 <div className="flex-1 mx-3 bg-white border border-gray-100 shadow-sm rounded-md px-3 py-1 flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-500" />
-                    <span className="text-gray-500 font-mono text-xs">litbee.in/dashboard</span>
+                    <span className="text-gray-500 font-mono text-xs">litbee.in/my-links</span>
                 </div>
             </div>
 

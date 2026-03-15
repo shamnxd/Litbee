@@ -58,7 +58,7 @@ export const UrlShortener = () => {
     return (
         <div className="w-full max-w-2xl">
             <form onSubmit={handleShorten} noValidate>
-                <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0 sm:bg-white sm:border sm:border-gray-200 sm:shadow-sm sm:rounded-2xl sm:p-1.5 sm:focus-within:border-amber-400 sm:transition-colors sm:duration-300">
+                <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0 sm:bg-white sm:border sm:border-gray-200 sm:shadow-sm sm:rounded-2xl sm:p-1.5 sm:focus-within:border-amber-400 sm:transition-colors sm:duration-300 max-w-[520px]">
                     <div className="flex items-center gap-2 flex-1 bg-white border border-gray-200 rounded-xl px-4 sm:bg-transparent sm:border-0 sm:rounded-none sm:px-4">
                         <Link2 className="w-4 h-4 text-amber-500 flex-shrink-0" />
                         <input
