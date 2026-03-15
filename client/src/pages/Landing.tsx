@@ -12,6 +12,7 @@ import { DashboardMockup } from "@/components/shared/DashboardMockup";
 import { FeatureCard } from "@/components/landing/FeatureCard";
 import { StepCard } from "@/components/landing/StepCard";
 import { TestimonialCard } from "@/components/landing/TestimonialCard";
+import { ReviewAvatars } from "@/components/landing/ReviewAvatars";
 import { Accordion } from "@/components/ui/accordion";
 import { FaqItem } from "@/components/landing/FaqItem";
 import { FEATURES, STEPS, TESTIMONIALS, FAQS } from "@/data/landingData";
@@ -32,13 +33,7 @@ export default function Landing() {
                 <div className="max-w-7xl mx-auto px-6 w-full grid lg:grid-cols-2 gap-16 items-center">
                     <div className="flex flex-col gap-7">
                         <div className="flex items-center gap-6 pt-6">
-                            <div className="flex -space-x-2">
-                                {["A", "S", "P", "D"].map((l, i) => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-[#F5F5F5] bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-black text-xs font-bold">
-                                        {l}
-                                    </div>
-                                ))}
-                            </div>
+                            <ReviewAvatars />
                             <p className="text-sm text-gray-500">
                                 <span className="text-gray-900 font-semibold">4.9 ★</span> rated by 2,000+ reviews
                             </p>
