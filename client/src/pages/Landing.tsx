@@ -116,6 +116,9 @@ export default function Landing() {
                         <h2 className="text-4xl lg:text-5xl font-black mb-4 text-gray-900">
                             Loved by <span className="text-amber-400">thousands</span>
                         </h2>
+                        <div className="flex justify-center mb-6 scale-110">
+                            <ReviewAvatars />
+                        </div>
                         <p className="text-gray-600 max-w-lg mx-auto">
                             Real feedback from real users — marketers, creators, and developers who rely on Litbee daily.
                         </p>

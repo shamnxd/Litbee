@@ -10,8 +10,8 @@ export const TestimonialCard = ({ quote, name, role, avatar, rating }: Testimoni
         </div>
         <p className="text-gray-700 text-sm leading-relaxed flex-1">"{quote}"</p>
         <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm flex-shrink-0">
-                {avatar}
+            <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+                <img src={avatar} alt={name} className="w-full h-full object-cover" />
             </div>
             <div>
                 <p className="text-gray-900 text-sm font-semibold">{name}</p>
