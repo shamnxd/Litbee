@@ -32,7 +32,7 @@ export default function Landing() {
 
                 <div className="max-w-7xl mx-auto px-6 w-full grid lg:grid-cols-2 gap-16 items-center">
                     <div className="flex flex-col gap-7">
-                        <div className="flex items-center gap-6 pt-6">
+                        <div className="flex items-center gap-1 pt-6">
                             <ReviewAvatars />
                             <p className="text-sm text-gray-500">
                                 <span className="text-gray-900 font-semibold">4.9 ★</span> rated by 2,000+ reviews
@@ -116,9 +116,6 @@ export default function Landing() {
                         <h2 className="text-4xl lg:text-5xl font-black mb-4 text-gray-900">
                             Loved by <span className="text-amber-400">thousands</span>
                         </h2>
-                        <div className="flex justify-center mb-6 scale-110">
-                            <ReviewAvatars />
-                        </div>
                         <p className="text-gray-600 max-w-lg mx-auto">
                             Real feedback from real users — marketers, creators, and developers who rely on Litbee daily.
                         </p>
