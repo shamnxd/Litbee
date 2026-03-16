@@ -5,6 +5,7 @@ import type { QueryFilter } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { ShortUrl, UrlDocument } from './schemas/url.schema';
 import { CreateUrlDto } from './dto/create-url.dto';
+import { URL_MESSAGES } from '../common/constants/messages';
 
 @Injectable()
 export class UrlsService {
@@ -44,7 +45,7 @@ export class UrlsService {
       .exec();
 
     if (!updatedUrl) {
-      throw new NotFoundException(`Url not found`);
+      throw new NotFoundException(URL_MESSAGES.ERRORS.NOT_FOUND);
     }
     return updatedUrl;
   }
@@ -52,7 +53,7 @@ export class UrlsService {
   async deleteUrl(id: string, userId: string): Promise<void> {
     const result = await this.urlModel.deleteOne({ _id: id, userId }).exec();
     if (result.deletedCount === 0) {
-      throw new NotFoundException(`Url not found`);
+      throw new NotFoundException(URL_MESSAGES.ERRORS.NOT_FOUND);
     }
   }
 
@@ -90,7 +91,7 @@ export class UrlsService {
   async findByCode(shortCode: string): Promise<UrlDocument> {
     const url = await this.urlModel.findOne({ shortCode }).exec();
     if (!url) {
-      throw new NotFoundException(`Short URL '${shortCode}' not found`);
+      throw new NotFoundException(URL_MESSAGES.ERRORS.SHORT_URL_NOT_FOUND(shortCode));
     }
     url.clicks += 1;
     await url.save();

@@ -13,6 +13,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { MailService } from '../mail/mail.service';
 import { RedisService } from '../redis/redis.service';
+import { AUTH_MESSAGES } from '../common/constants/messages';
 
 @Injectable()
 export class AuthService {
@@ -35,23 +36,23 @@ export class AuthService {
 
   async sendVerificationEmail(email: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException('User not found');
-    if (user.isVerified) throw new ConflictException('Email already verified');
+    if (!user) throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.USER_NOT_FOUND);
+    if (user.isVerified) throw new ConflictException(AUTH_MESSAGES.ERRORS.EMAIL_ALREADY_VERIFIED);
 
     const otp = this.generateOtp();
     await this.redisService.set(`otp:${email}`, otp, 300);
     await this.mailService.sendVerificationOtp(email, otp);
-    return { message: 'Verification OTP sent to your email.' };
+    return { message: AUTH_MESSAGES.SUCCESS.OTP_SENT };
   }
 
   async verifyEmail(email: string, otp: string) {
     const storedOtp = await this.redisService.get(`otp:${email}`);
     if (!storedOtp || storedOtp !== otp) {
-      throw new UnauthorizedException('Invalid or expired OTP');
+      throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.INVALID_OTP);
     }
 
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException('User not found');
+    if (!user) throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.USER_NOT_FOUND);
 
     await this.usersService.updateVerificationStatus(user._id.toString(), true);
     await this.redisService.del(`otp:${email}`);
@@ -60,7 +61,7 @@ export class AuthService {
     await this.updateRefreshToken(user._id.toString(), tokens.refresh_token);
 
     return {
-      message: 'Email verified successfully.',
+      message: AUTH_MESSAGES.SUCCESS.EMAIL_VERIFIED,
       ...tokens,
       user: {
         id: user._id,
@@ -74,7 +75,7 @@ export class AuthService {
   async forgotPassword(email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user)
-      return { message: 'If an account exists, a reset link will be sent.' };
+      return { message: AUTH_MESSAGES.SUCCESS.RESET_LINK_SENT };
 
     const resetToken = crypto.randomBytes(32).toString('hex');
     await this.redisService.set(`reset:${resetToken}`, email, 3600);
@@ -84,28 +85,28 @@ export class AuthService {
     const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
     await this.mailService.sendResetPasswordEmail(email, resetUrl);
-    return { message: 'If an account exists, a reset link will be sent.' };
+    return { message: AUTH_MESSAGES.SUCCESS.RESET_LINK_SENT };
   }
 
   async resetPassword(token: string, newPass: string) {
     const email = await this.redisService.get(`reset:${token}`);
     if (!email)
-      throw new UnauthorizedException('Invalid or expired reset token');
+      throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.INVALID_RESET_TOKEN);
 
     const user = await this.usersService.findByEmail(email);
-    if (!user) throw new UnauthorizedException('User not found');
+    if (!user) throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.USER_NOT_FOUND);
 
     const hashedPassword = await bcrypt.hash(newPass, 10);
     await this.usersService.updatePassword(user._id.toString(), hashedPassword);
     await this.redisService.del(`reset:${token}`);
 
-    return { message: 'Password reset successfully' };
+    return { message: AUTH_MESSAGES.SUCCESS.PASSWORD_RESET };
   }
 
   async register(dto: RegisterDto) {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
-      throw new ConflictException('An account with this email already exists');
+      throw new ConflictException(AUTH_MESSAGES.ERRORS.EMAIL_EXISTS);
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -123,7 +124,7 @@ export class AuthService {
     }
 
     return {
-      message: 'Registration successful. Please verify your email.',
+      message: AUTH_MESSAGES.SUCCESS.REGISTRATION_SUCCESS,
       user: {
         id: user._id,
         email: user.email,
@@ -162,12 +163,12 @@ export class AuthService {
             name = data.name;
           }
         } catch {
-          throw new UnauthorizedException('Invalid Google token');
+          throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.INVALID_GOOGLE_TOKEN);
         }
       }
 
       if (!email) {
-        throw new UnauthorizedException('Google authentication failed');
+        throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.GOOGLE_AUTH_FAILED);
       }
 
       let user = await this.usersService.findByEmail(email);
@@ -194,7 +195,7 @@ export class AuthService {
       await this.updateRefreshToken(user._id.toString(), tokens.refresh_token);
 
       return {
-        message: 'Login successful',
+        message: AUTH_MESSAGES.SUCCESS.LOGIN_SUCCESS,
         ...tokens,
         user: {
           id: user._id,
@@ -205,26 +206,26 @@ export class AuthService {
       };
     } catch (error) {
       console.error('Google Auth Error:', error);
-      throw new UnauthorizedException('Google authentication failed');
+      throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.GOOGLE_AUTH_FAILED);
     }
   }
 
   async login(dto: LoginDto) {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.INVALID_CREDENTIALS);
     }
 
     const isMatch = await bcrypt.compare(dto.password, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.INVALID_CREDENTIALS);
     }
 
     const tokens = await this.getTokens(user._id.toString(), user.email);
     await this.updateRefreshToken(user._id.toString(), tokens.refresh_token);
 
     return {
-      message: 'Login successful',
+      message: AUTH_MESSAGES.SUCCESS.LOGIN_SUCCESS,
       ...tokens,
       user: {
         id: user._id,
@@ -249,12 +250,12 @@ export class AuthService {
 
       const user = await this.usersService.findById(userId);
       if (!user || !user.refreshToken) {
-        throw new UnauthorizedException('Access Denied');
+        throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.ACCESS_DENIED);
       }
 
       const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
       if (!isMatch) {
-        throw new UnauthorizedException('Access Denied');
+        throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.ACCESS_DENIED);
       }
 
       const tokens = await this.getTokens(user._id.toString(), user.email);
@@ -270,7 +271,7 @@ export class AuthService {
         },
       };
     } catch {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.INVALID_REFRESH_TOKEN);
     }
   }
 
@@ -301,6 +302,6 @@ export class AuthService {
 
   async logout(userId: string) {
     await this.usersService.updateRefreshToken(userId, null);
-    return { message: 'Logged out successfully.' };
+    return { message: AUTH_MESSAGES.SUCCESS.LOGOUT_SUCCESS };
   }
 }

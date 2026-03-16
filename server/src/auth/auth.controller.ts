@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { AUTH_MESSAGES } from '../common/constants/messages';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -110,7 +111,7 @@ export class AuthController {
       'refresh_token'
     ];
     if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token not found');
+      throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.REFRESH_TOKEN_NOT_FOUND);
     }
 
     const result = await this.authService.refreshTokens(refreshToken);
