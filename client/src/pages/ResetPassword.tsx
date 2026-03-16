@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPasswordSchema, type ResetPasswordFormData } from "@/lib/validation";
 
 import { isAxiosError } from "axios";
+import { AUTH_MESSAGES } from "@/constants/messages";
 
 export default function ResetPassword() {
     const [searchParams] = useSearchParams();
@@ -29,7 +30,7 @@ export default function ResetPassword() {
 
     useEffect(() => {
         if (!token) {
-            setErrorMsg("Invalid reset link. Please request a new one.");
+            setErrorMsg(AUTH_MESSAGES.ERROR.INVALID_RESET_LINK);
         }
     }, [token]);
 
@@ -47,9 +48,9 @@ export default function ResetPassword() {
             }, 5000);
         } catch (err: unknown) {
             if (isAxiosError(err)) {
-                setErrorMsg(err.response?.data?.message || "Reset failed. Session may have expired.");
+                setErrorMsg(err.response?.data?.message || AUTH_MESSAGES.ERROR.RESET_FAILED_SESSION);
             } else {
-                setErrorMsg("An unexpected error occurred.");
+                setErrorMsg(AUTH_MESSAGES.ERROR.UNEXPECTED);
             }
         } finally {
             setIsLoading(false);
@@ -61,11 +62,11 @@ export default function ResetPassword() {
             <div className="w-full flex flex-col justify-center px-8 sm:px-14 xl:px-16 py-12 relative max-w-lg mx-auto">
                 <div className="flex flex-col items-center mb-10">
                     <LitbeeLogo size={48} />
-                    <h1 className="text-3xl font-black text-[#0a0a0a] tracking-tight mt-6">Set New Password</h1>
+                    <h1 className="text-3xl font-black text-[#0a0a0a] tracking-tight mt-6">{AUTH_MESSAGES.TITLES.SET_NEW_PASSWORD}</h1>
                     <p className="text-gray-400 text-center mt-2 px-4">
                         {isReset
-                            ? "Password updated successfully!"
-                            : "Secure your account with a strong new password."}
+                            ? AUTH_MESSAGES.SUCCESS.PASSWORD_RESET_SUCCESS
+                            : AUTH_MESSAGES.SUBTITLES.RESET_PROMPT}
                     </p>
                 </div>
 
@@ -143,7 +144,7 @@ export default function ResetPassword() {
                             <CheckCircle2 size={32} />
                         </div>
                         <p className="text-gray-500 mb-8 px-4 font-medium">
-                            Your password has been changed. You will be redirected to the login page shortly.
+                            {AUTH_MESSAGES.SUCCESS.PASSWORD_RESET_REDIRECT}
                         </p>
                         <Link
                             to="/auth"

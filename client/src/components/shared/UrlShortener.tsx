@@ -8,6 +8,7 @@ import { urlService } from "@/services/urlService";
 import { LinkSuccessModal } from "./LinkSuccessModal";
 
 import { isAxiosError } from "axios";
+import { AUTH_MESSAGES, URL_MESSAGES } from "@/constants/messages";
 
 export const UrlShortener = () => {
     const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -24,7 +25,7 @@ export const UrlShortener = () => {
         if (!url) return;
 
         if (!isAuthenticated) {
-            setError("Please login to shorten links");
+            setError(AUTH_MESSAGES.ERROR.LOGIN_REQUIRED);
             setTimeout(() => navigate("/auth"), 1500);
             return;
         }
@@ -46,9 +47,9 @@ export const UrlShortener = () => {
             setIsModalOpen(true);
         } catch (err: unknown) {
             if (isAxiosError(err)) {
-                setError(err.response?.data?.message || "Failed to shorten URL");
+                setError(err.response?.data?.message || URL_MESSAGES.URL.FAILED);
             } else {
-                setError("An unexpected error occurred");
+                setError(URL_MESSAGES.COMMON.UNEXPECTED);
             }
         } finally {
             setLoading(false);
@@ -65,7 +66,7 @@ export const UrlShortener = () => {
                             type="text"
                             value={url}
                             onChange={(e) => { setUrl(e.target.value); setError(""); }}
-                            placeholder="Paste your long URL here..."
+                            placeholder={URL_MESSAGES.URL.INPUT_PLACEHOLDER}
                             className="flex-1 bg-transparent py-3 text-sm text-gray-900 placeholder-gray-400 outline-none"
                         />
                     </div>
@@ -83,7 +84,7 @@ export const UrlShortener = () => {
                             ? <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                             : <Zap className="w-4 h-4" />
                         }
-                        {loading ? "Shortening..." : "Shorten"}
+                        {loading ? URL_MESSAGES.URL.SHORTENING : URL_MESSAGES.URL.SHORTEN}
                     </button>
                 </div>
                 {error && <p className="text-red-500 text-xs mt-2 ml-4 font-medium">{error}</p>}

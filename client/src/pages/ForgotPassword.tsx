@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/lib/validation";
 
 import { isAxiosError } from "axios";
+import { AUTH_MESSAGES } from "@/constants/messages";
 
 export default function ForgotPassword() {
     const [isLoading, setIsLoading] = useState(false);
@@ -33,9 +34,9 @@ export default function ForgotPassword() {
             setIsSent(true);
         } catch (error: unknown) {
             if (isAxiosError(error)) {
-                setErrorMsg(error.response?.data?.message || "Something went wrong.");
+                setErrorMsg(error.response?.data?.message || AUTH_MESSAGES.ERROR.GENERIC_SOMETHING_WRONG);
             } else {
-                setErrorMsg("An unexpected error occurred.");
+                setErrorMsg(AUTH_MESSAGES.ERROR.UNEXPECTED);
             }
         } finally {
             setIsLoading(false);
@@ -47,11 +48,11 @@ export default function ForgotPassword() {
             <div className="w-full flex flex-col justify-center px-8 sm:px-14 xl:px-16 py-12 relative max-w-lg mx-auto">
                 <div className="flex flex-col items-center mb-10">
                     <LitbeeLogo size={48} />
-                    <h1 className="text-3xl font-black text-[#0a0a0a] tracking-tight mt-6">Reset Password</h1>
+                    <h1 className="text-3xl font-black text-[#0a0a0a] tracking-tight mt-6">{AUTH_MESSAGES.TITLES.RESET_PASSWORD}</h1>
                     <p className="text-gray-400 text-center mt-2">
                         {isSent
-                            ? "Check your inbox for a reset link."
-                            : "Enter your email to receive a password reset link."}
+                            ? AUTH_MESSAGES.SUCCESS.PASSWORD_RESET_SENT
+                            : AUTH_MESSAGES.SUBTITLES.FORGOT_PROMPT}
                     </p>
                 </div>
 
@@ -104,13 +105,13 @@ export default function ForgotPassword() {
                             <CheckCircle2 size={32} />
                         </div>
                         <p className="text-gray-500 mb-8 px-4">
-                            If an account exists for <strong className="text-gray-900">{sentEmail}</strong>, you'll receive an email with instructions shortly.
+                            {AUTH_MESSAGES.SUBTITLES.FORGOT_SENT(sentEmail)}
                         </p>
                         <button
                             onClick={() => setIsSent(false)}
                             className="text-sm font-bold text-amber-500 hover:text-amber-600 transition-colors"
                         >
-                            Did't get it? Try again
+                            {AUTH_MESSAGES.VERIFY.RESEND_RETRY}
                         </button>
                     </div>
                 )}
