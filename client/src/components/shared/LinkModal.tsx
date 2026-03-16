@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { urlShortenerSchema, type UrlShortenerFormData } from "@/lib/validation";
+import { URL_MESSAGES } from "@/constants/messages";
 
 import type { LinkModalProps } from "@/types/component.types";
 
@@ -113,10 +114,10 @@ export const LinkModal = ({
                 <h2 className="text-xl font-bold mb-6 text-gray-900 tracking-tight">{title}</h2>
                 <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4" noValidate>
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1.5 ml-1">Destination URL</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5 ml-1">{URL_MESSAGES.URL.DESTINATION_LABEL}</label>
                         <input
                             type="text"
-                            placeholder="https://example.com/long-url"
+                            placeholder={URL_MESSAGES.URL.DESTINATION_PLACEHOLDER}
                             {...register("longUrl")}
                             className={cn(
                                 "w-full bg-gray-50 border rounded-xl px-4 py-3 outline-none text-sm transition-all focus:bg-white text-gray-900 placeholder:text-gray-400",
@@ -134,7 +135,7 @@ export const LinkModal = ({
                             <label className="block text-sm font-bold text-gray-700">Custom slug (Optional)</label>
                             {isValidating && (
                                 <span className="flex items-center gap-1 text-[10px] font-bold text-amber-500 uppercase tracking-wider animate-pulse">
-                                    <Loader2 size={10} className="animate-spin" /> Checking
+                                    <Loader2 size={10} className="animate-spin" /> {URL_MESSAGES.SLUG.CHECKING}
                                 </span>
                             )}
                         </div>
@@ -161,12 +162,12 @@ export const LinkModal = ({
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                                 {isAvailable === true && !errors.customSlug && (
                                     <span className="flex items-center gap-1 text-[10px] font-black text-green-600 bg-green-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                                        <CheckCircle2 size={10} strokeWidth={3} /> Available
+                                        <CheckCircle2 size={10} strokeWidth={3} /> {URL_MESSAGES.SLUG.AVAILABLE}
                                     </span>
                                 )}
                                 {isAvailable === false && !errors.customSlug && (
                                     <span className="flex items-center gap-1 text-[10px] font-black text-red-600 bg-red-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
-                                        <AlertCircle size={10} strokeWidth={3} /> Taken
+                                        <AlertCircle size={10} strokeWidth={3} /> {URL_MESSAGES.SLUG.TAKEN}
                                     </span>
                                 )}
                             </div>
@@ -176,16 +177,16 @@ export const LinkModal = ({
                         )}
                         {isAvailable === false && !errors.customSlug && (
                             <p className="text-[10px] text-red-500 mt-1.5 font-bold ml-1 flex items-center gap-1">
-                                This slug is already in use by another link.
+                                {URL_MESSAGES.SLUG.IN_USE}
                             </p>
                         )}
                     </div>
                     <div>
-                        <label className="block text-sm font-bold text-gray-700 mb-1.5 ml-1">Tags</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-1.5 ml-1">{URL_MESSAGES.TAGS.LABEL}</label>
                         <div className="flex gap-2 mb-3">
                             <input
                                 type="text"
-                                placeholder="Add a tag..."
+                                placeholder={URL_MESSAGES.TAGS.ADD_PLACEHOLDER}
                                 value={currentTag}
                                 onChange={(e) => setCurrentTag(e.target.value)}
                                 onKeyDown={(e) => {
@@ -217,7 +218,7 @@ export const LinkModal = ({
                                     </button>
                                 </div>
                             ))}
-                            {tags.length === 0 && <span className="text-xs text-gray-400 italic ml-1">Organize with tags</span>}
+                            {tags.length === 0 && <span className="text-xs text-gray-400 italic ml-1">{URL_MESSAGES.TAGS.EMPTY}</span>}
                         </div>
                     </div>
                     <button

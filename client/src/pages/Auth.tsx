@@ -16,6 +16,7 @@ import { VerificationForm } from "@/components/auth/VerificationForm";
 import { AuthTabs } from "@/components/auth/AuthTabs";
 import { SocialAuth } from "@/components/auth/SocialAuth";
 import { isAxiosError } from "axios";
+import { AUTH_MESSAGES } from "@/constants/messages";
 
 type AuthFormData = LoginFormData & SignupFormData & VerifyEmailFormData;
 
@@ -82,7 +83,7 @@ export default function Auth() {
                 switchMode("verify");
             }
         } catch (error: unknown) {
-            let message = "Google Authentication failed.";
+            let message = AUTH_MESSAGES.ERROR.GOOGLE_FAILED;
             if (isAxiosError(error)) {
                 message = error.response?.data?.message || message;
             }
@@ -100,7 +101,7 @@ export default function Auth() {
                 handleGoogleAuth(token);
             }
         },
-        onError: () => setErrorMsg("Google Login Failed"),
+        onError: () => setErrorMsg(AUTH_MESSAGES.ERROR.GOOGLE_FAILED),
     });
 
     const onSubmit = async (data: LoginFormData | SignupFormData | VerifyEmailFormData) => {
@@ -133,13 +134,13 @@ export default function Auth() {
                     user: response.user,
                     token: response.access_token
                 }));
-                setSuccessMsg("Email verified successfully! Redirecting...");
+                setSuccessMsg(AUTH_MESSAGES.SUCCESS.VERIFY_COMPLETE);
                 setTimeout(() => {
                     navigate("/my-links", { replace: true });
                 }, 1500);
             }
         } catch (error: unknown) {
-            let message = "Authentication failed.";
+            let message = AUTH_MESSAGES.ERROR.AUTH_GENERIC;
             if (isAxiosError(error)) {
                 message = error.response?.data?.message || message;
             }
@@ -179,13 +180,13 @@ export default function Auth() {
 
         try {
             await authService.sendOtp(verificationEmail || user?.email || "");
-            setSuccessMsg("OTP resent to your email.");
+            setSuccessMsg(AUTH_MESSAGES.SUCCESS.OTP_SENT);
             setTimer(60);
         } catch (error: unknown) {
             if (isAxiosError(error)) {
-                setErrorMsg(error.response?.data?.message || "Failed to resend OTP");
+                setErrorMsg(error.response?.data?.message || AUTH_MESSAGES.ERROR.RESEND_FAILED);
             } else {
-                setErrorMsg("An unexpected error occurred");
+                setErrorMsg(AUTH_MESSAGES.ERROR.UNEXPECTED);
             }
         } finally {
             setIsResending(false);
@@ -218,14 +219,14 @@ export default function Auth() {
 
                 <div className="mb-8">
                     <h1 className="text-3xl font-black text-[#0a0a0a] tracking-tight leading-tight">
-                        {isLogin ? "Welcome back." : isSignup ? "Get started free." : "Verify email."}
+                        {isLogin ? AUTH_MESSAGES.TITLES.WELCOME_BACK : isSignup ? AUTH_MESSAGES.TITLES.GET_STARTED : AUTH_MESSAGES.TITLES.VERIFY_EMAIL}
                     </h1>
                     <p className="text-gray-400 text-sm mt-1.5">
                         {isLogin
-                            ? "Sign in to your Litbee account"
+                            ? AUTH_MESSAGES.SUBTITLES.SIGN_IN
                             : isSignup
-                                ? "No credit card required · Free forever plan"
-                                : `Enter the 6-digit code sent to ${verificationEmail || user?.email}`}
+                                ? AUTH_MESSAGES.SUBTITLES.NO_CREDIT_CARD
+                                : AUTH_MESSAGES.SUBTITLES.ENTER_OTP(verificationEmail || user?.email || "")}
                     </p>
                 </div>
 

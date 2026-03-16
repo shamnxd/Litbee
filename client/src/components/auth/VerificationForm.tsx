@@ -2,6 +2,7 @@ import React from "react";
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import { Loader2, RefreshCw } from "lucide-react";
 import type { VerifyEmailFormData } from "@/lib/validation";
+import { AUTH_MESSAGES } from "@/constants/messages";
 
 interface VerificationFormProps {
     register: UseFormRegister<VerifyEmailFormData>;
@@ -55,7 +56,9 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
                     ) : (
                         <RefreshCw size={14} className={timer > 0 ? '' : 'animate-none'} />
                     )}
-                    {timer > 0 ? `Resend code in ${timer}s` : "Didn't receive the code? Resend"}
+                    {timer > 0 
+                        ? AUTH_MESSAGES.VERIFY.RESEND_WAIT(timer) 
+                        : AUTH_MESSAGES.VERIFY.RESEND_PROMPT}
                 </button>
             </div>
         </div>
