@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { UrlsService } from './urls.service';
 import { CreateUrlDto } from './dto/create-url.dto';
+import { URL_MESSAGES } from '../common/constants/messages';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 
@@ -44,7 +45,7 @@ export class UrlsController {
   ) {
     const url = await this.urlsService.create(dto, req.user.userId);
     return {
-      message: 'Short URL created successfully',
+      message: URL_MESSAGES.SUCCESS.CREATED,
       data: url,
     };
   }
@@ -78,7 +79,7 @@ export class UrlsController {
     @ReqDecorator() req: AuthenticatedRequest,
   ) {
     const url = await this.urlsService.updateUrl(id, dto, req.user.userId);
-    return { message: 'Short URL updated successfully', data: url };
+    return { message: URL_MESSAGES.SUCCESS.UPDATED, data: url };
   }
 
   @Delete('urls/:id')
@@ -88,7 +89,7 @@ export class UrlsController {
     @ReqDecorator() req: AuthenticatedRequest,
   ) {
     await this.urlsService.deleteUrl(id, req.user.userId);
-    return { message: 'Short URL deleted successfully' };
+    return { message: URL_MESSAGES.SUCCESS.DELETED };
   }
 
   @Get(':code')
