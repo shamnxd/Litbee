@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Landing from "@/pages/Landing";
 import Auth from "@/pages/Auth";
 import MyLinks from "@/pages/MyLinks";
@@ -55,6 +55,7 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
+          <Route path="/verify-email" element={<Navigate to="/auth" replace />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
         </Route>

@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { LitbeeLogo } from "@/components/shared/LitbeeLogo";
 
-export const AuthSidebar: React.FC = () => {
+export const AuthSidebar = React.memo(() => {
     return (
         <div className="hidden lg:flex lg:w-[58%] flex-col bg-slate-50 border-r border-gray-100 relative overflow-hidden">
             <div className="absolute inset-0 opacity-[0.03]"
@@ -61,4 +61,4 @@ export const AuthSidebar: React.FC = () => {
             </div>
         </div>
     );
-};
+});

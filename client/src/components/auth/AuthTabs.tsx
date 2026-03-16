@@ -14,6 +14,8 @@ export const AuthTabs: React.FC<AuthTabsProps> = ({
     verificationEmail,
     hasUser
 }) => {
+    if (mode === "verify") return null;
+
     return (
         <div className="flex items-center gap-1 mb-8">
             {([
