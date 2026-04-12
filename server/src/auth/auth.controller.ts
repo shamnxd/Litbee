@@ -11,11 +11,14 @@ import {
   Inject,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { I_IDENTITY_SERVICE } from './interfaces/identity.service.interface';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
+import {
+  I_IDENTITY_SERVICE,
+  I_ACCOUNT_SERVICE,
+  I_GOOGLE_AUTH_SERVICE
+} from './constants/tokens';
 import type { IIdentityService } from './interfaces/identity.service.interface';
-import { I_ACCOUNT_SERVICE } from './interfaces/account.service.interface';
 import type { IAccountService } from './interfaces/account.service.interface';
-import { I_GOOGLE_AUTH_SERVICE } from './interfaces/google-auth.service.interface';
 import type { IGoogleAuthService } from './interfaces/google-auth.service.interface';
 import { AUTH_MESSAGES } from '../common/constants/messages';
 import { RegisterDto } from './dto/register.dto';
@@ -26,15 +29,15 @@ import { setRefreshTokenCookie, clearRefreshTokenCookie } from '../common/utils/
 @Controller('auth')
 export class AuthController {
   constructor(
-    @Inject(I_IDENTITY_SERVICE) private readonly identityService: IIdentityService,
-    @Inject(I_ACCOUNT_SERVICE) private readonly accountService: IAccountService,
-    @Inject(I_GOOGLE_AUTH_SERVICE) private readonly googleAuthService: IGoogleAuthService,
+    @Inject(I_IDENTITY_SERVICE) private readonly _identityService: IIdentityService,
+    @Inject(I_ACCOUNT_SERVICE) private readonly _accountService: IAccountService,
+    @Inject(I_GOOGLE_AUTH_SERVICE) private readonly _googleAuthService: IGoogleAuthService,
   ) { }
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   register(@Body() dto: RegisterDto) {
-    return this.identityService.register(dto);
+    return this._identityService.register(dto);
   }
 
   @Post('login')
@@ -43,7 +46,7 @@ export class AuthController {
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { refresh_token, ...data } = await this.identityService.login(dto);
+    const { refresh_token, ...data } = await this._identityService.login(dto);
     setRefreshTokenCookie(res, refresh_token);
     return data;
   }
@@ -54,7 +57,7 @@ export class AuthController {
     @Body('token') token: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { refresh_token, ...data } = await this.googleAuthService.login(token);
+    const { refresh_token, ...data } = await this._googleAuthService.login(token);
     setRefreshTokenCookie(res, refresh_token);
     return data;
   }
@@ -62,7 +65,7 @@ export class AuthController {
   @Post('send-otp')
   @HttpCode(HttpStatus.OK)
   async sendOtp(@Body('email') email: string) {
-    return this.accountService.sendVerificationEmail(email);
+    return this._accountService.sendVerificationEmail(email);
   }
 
   @Post('verify-email')
@@ -72,7 +75,7 @@ export class AuthController {
     @Body('otp') otp: string,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const { refresh_token, ...data } = await this.accountService.verifyEmail(email, otp);
+    const { refresh_token, ...data } = await this._accountService.verifyEmail(email, otp);
     setRefreshTokenCookie(res, refresh_token);
     return data;
   }
@@ -80,7 +83,7 @@ export class AuthController {
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body('email') email: string) {
-    return this.accountService.forgotPassword(email);
+    return this._accountService.forgotPassword(email);
   }
 
   @Post('reset-password')
@@ -89,7 +92,7 @@ export class AuthController {
     @Body('token') token: string,
     @Body('newPassword') newPass: string,
   ) {
-    return this.accountService.resetPassword(token, newPass);
+    return this._accountService.resetPassword(token, newPass);
   }
 
   @Post('logout')
@@ -99,7 +102,7 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const result = await this.identityService.logout(req.user.sub);
+    const result = await this._identityService.logout(req.user.userId);
     clearRefreshTokenCookie(res);
     return result;
   }
@@ -117,7 +120,7 @@ export class AuthController {
       throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.REFRESH_TOKEN_NOT_FOUND);
     }
 
-    const { refresh_token, ...data } = await this.identityService.refreshTokens(refreshToken);
+    const { refresh_token, ...data } = await this._identityService.refreshTokens(refreshToken);
     setRefreshTokenCookie(res, refresh_token);
     return data;
   }

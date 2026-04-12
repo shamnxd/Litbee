@@ -1,8 +1,6 @@
 import { CreateUrlDto } from '../dto/create-url.dto';
 import { UrlResponse } from '../dto/url-response.dto';
 
-export const I_URLS_SERVICE = 'IUrlsService';
-
 export interface IUrlsService {
   create(dto: CreateUrlDto, userId: string): Promise<{ message: string; data: UrlResponse }>;
   updateUrl(

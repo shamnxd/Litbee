@@ -4,8 +4,7 @@ import { UrlsService } from './services/urls.service';
 import { UrlsController } from './urls.controller';
 import { ShortUrl, UrlSchema } from './schemas/url.schema';
 import { UrlsRepository } from './repositories/urls.repository';
-import { I_URLS_REPOSITORY } from './interfaces/urls.repository.interface';
-import { I_URLS_SERVICE } from './interfaces/urls.service.interface';
+import { I_URLS_REPOSITORY, I_URLS_SERVICE } from './constants/tokens';
 
 @Module({
   imports: [

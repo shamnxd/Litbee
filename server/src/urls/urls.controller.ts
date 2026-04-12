@@ -14,18 +14,17 @@ import {
   UseGuards,
   Inject,
 } from '@nestjs/common';
-import type { Request } from 'express';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import type { IUrlsService } from './interfaces/urls.service.interface';
-import { I_URLS_SERVICE } from './interfaces/urls.service.interface';
+import { I_URLS_SERVICE } from './constants/tokens';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 
 @Controller()
 export class UrlsController {
   constructor(
-    @Inject(I_URLS_SERVICE) private readonly urlsService: IUrlsService,
-  ) {}
+    @Inject(I_URLS_SERVICE) private readonly _urlsService: IUrlsService,
+  ) { }
 
   @Get('urls/check-availability')
   @UseGuards(JwtAuthGuard)
@@ -33,7 +32,7 @@ export class UrlsController {
     @Query('slug') slug: string,
     @Query('excludeId') excludeId?: string,
   ) {
-    const isAvailable = await this.urlsService.checkSlugAvailability(
+    const isAvailable = await this._urlsService.checkSlugAvailability(
       slug,
       excludeId,
     );
@@ -47,7 +46,7 @@ export class UrlsController {
     @Body() dto: CreateUrlDto,
     @ReqDecorator() req: AuthenticatedRequest,
   ) {
-    return this.urlsService.create(dto, req.user.userId);
+    return this._urlsService.create(dto, req.user.userId);
   }
 
   @Get('urls')
@@ -58,7 +57,7 @@ export class UrlsController {
     @Query('limit') limit: number = 10,
     @Query('search') search?: string,
   ) {
-    return this.urlsService.findAllByUser(
+    return this._urlsService.findAllByUser(
       req.user.userId,
       Number(page),
       Number(limit),
@@ -73,7 +72,7 @@ export class UrlsController {
     @Body() dto: Partial<CreateUrlDto>,
     @ReqDecorator() req: AuthenticatedRequest,
   ) {
-    return this.urlsService.updateUrl(id, dto, req.user.userId);
+    return this._urlsService.updateUrl(id, dto, req.user.userId);
   }
 
   @Delete('urls/:id')
@@ -82,13 +81,13 @@ export class UrlsController {
     @Param('id') id: string,
     @ReqDecorator() req: AuthenticatedRequest,
   ) {
-    return this.urlsService.deleteUrl(id, req.user.userId);
+    return this._urlsService.deleteUrl(id, req.user.userId);
   }
 
   @Get(':code')
   @Redirect()
   async redirect(@Param('code') code: string) {
-    const url = await this.urlsService.findByCode(code);
+    const url = await this._urlsService.findByCode(code);
     return { url: url.longUrl, statusCode: HttpStatus.MOVED_PERMANENTLY };
   }
 }

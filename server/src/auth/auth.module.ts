@@ -10,14 +10,15 @@ import { GoogleAuthService } from './services/google-auth.service';
 import { AuthController } from './auth.controller';
 import { User, UserSchema } from './schemas/user.schema';
 import { AuthRepository } from './repositories/auth.repository';
-import { I_AUTH_REPOSITORY } from './interfaces/auth.repository.interface';
-import { I_IDENTITY_SERVICE } from './interfaces/identity.service.interface';
-import { I_ACCOUNT_SERVICE } from './interfaces/account.service.interface';
-import { I_GOOGLE_AUTH_SERVICE } from './interfaces/google-auth.service.interface';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { OAuth2Client } from 'google-auth-library';
-
-export const GOOGLE_OAUTH_CLIENT = 'GOOGLE_OAUTH_CLIENT';
+import {
+  GOOGLE_OAUTH_CLIENT,
+  I_AUTH_REPOSITORY,
+  I_IDENTITY_SERVICE,
+  I_ACCOUNT_SERVICE,
+  I_GOOGLE_AUTH_SERVICE
+} from './constants/tokens';
 
 @Module({
   imports: [
