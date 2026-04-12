@@ -19,6 +19,9 @@ export class ShortUrl {
 
   @Prop({ type: [{ name: String, color: String }], default: [] })
   tags: { name: string; color: string }[];
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const UrlSchema = SchemaFactory.createForClass(ShortUrl);

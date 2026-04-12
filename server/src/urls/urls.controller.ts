@@ -12,11 +12,12 @@ import {
   Request as ReqDecorator,
   Query,
   UseGuards,
+  Inject,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { UrlsService } from './urls.service';
+import type { IUrlsService } from './interfaces/urls.service.interface';
+import { I_URLS_SERVICE } from './interfaces/urls.service.interface';
 import { CreateUrlDto } from './dto/create-url.dto';
-import { URL_MESSAGES } from '../common/constants/messages';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 interface AuthenticatedRequest extends Request {
@@ -25,7 +26,9 @@ interface AuthenticatedRequest extends Request {
 
 @Controller()
 export class UrlsController {
-  constructor(private readonly urlsService: UrlsService) {}
+  constructor(
+    @Inject(I_URLS_SERVICE) private readonly urlsService: IUrlsService,
+  ) {}
 
   @Get('urls/check-availability')
   @UseGuards(JwtAuthGuard)
@@ -47,11 +50,7 @@ export class UrlsController {
     @Body() dto: CreateUrlDto,
     @ReqDecorator() req: AuthenticatedRequest,
   ) {
-    const url = await this.urlsService.create(dto, req.user.userId);
-    return {
-      message: URL_MESSAGES.SUCCESS.CREATED,
-      data: url,
-    };
+    return this.urlsService.create(dto, req.user.userId);
   }
 
   @Get('urls')
@@ -62,17 +61,12 @@ export class UrlsController {
     @Query('limit') limit: number = 10,
     @Query('search') search?: string,
   ) {
-    const result = await this.urlsService.findAllByUser(
+    return this.urlsService.findAllByUser(
       req.user.userId,
       Number(page),
       Number(limit),
       search,
     );
-
-    return {
-      count: result.total,
-      data: result.urls,
-    };
   }
 
   @Put('urls/:id')
@@ -82,8 +76,7 @@ export class UrlsController {
     @Body() dto: Partial<CreateUrlDto>,
     @ReqDecorator() req: AuthenticatedRequest,
   ) {
-    const url = await this.urlsService.updateUrl(id, dto, req.user.userId);
-    return { message: URL_MESSAGES.SUCCESS.UPDATED, data: url };
+    return this.urlsService.updateUrl(id, dto, req.user.userId);
   }
 
   @Delete('urls/:id')
@@ -92,8 +85,7 @@ export class UrlsController {
     @Param('id') id: string,
     @ReqDecorator() req: AuthenticatedRequest,
   ) {
-    await this.urlsService.deleteUrl(id, req.user.userId);
-    return { message: URL_MESSAGES.SUCCESS.DELETED };
+    return this.urlsService.deleteUrl(id, req.user.userId);
   }
 
   @Get(':code')
