@@ -5,8 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserDocument } from '../schemas/user.schema';
+import { I_AUTH_REPOSITORY } from '../constants/tokens';
 import type { IAuthRepository } from '../interfaces/auth.repository.interface';
-import { I_AUTH_REPOSITORY } from '../interfaces/auth.repository.interface';
 import type { IIdentityService } from '../interfaces/identity.service.interface';
 import type { AuthResponse, UserResponse } from '../dto/auth-response.dto';
 import { ConfigService } from '@nestjs/config';
@@ -20,19 +20,19 @@ import { AuthMapper } from '../auth.mapper';
 @Injectable()
 export class IdentityService implements IIdentityService {
   constructor(
-    @Inject(I_AUTH_REPOSITORY) private readonly authRepository: IAuthRepository,
-    private jwtService: JwtService,
-    private configService: ConfigService,
+    @Inject(I_AUTH_REPOSITORY) private readonly _authRepository: IAuthRepository,
+    private readonly _jwtService: JwtService,
+    private readonly _configService: ConfigService,
   ) { }
 
   async register(dto: RegisterDto): Promise<{ message: string; user: UserResponse }> {
-    const existing = await this.authRepository.findOne({ email: dto.email });
+    const existing = await this._authRepository.findOne({ email: dto.email });
     if (existing) {
       throw new ConflictException(AUTH_MESSAGES.ERRORS.EMAIL_EXISTS);
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const user = await this.authRepository.create({
+    const user = await this._authRepository.create({
       email: dto.email,
       name: dto.name,
       password: hashedPassword,
@@ -46,7 +46,7 @@ export class IdentityService implements IIdentityService {
   }
 
   async login(dto: LoginDto): Promise<AuthResponse> {
-    const user = await this.authRepository.findOne({ email: dto.email });
+    const user = await this._authRepository.findOne({ email: dto.email });
     if (!user) {
       throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.INVALID_CREDENTIALS);
     }
@@ -61,14 +61,14 @@ export class IdentityService implements IIdentityService {
 
   async refreshTokens(refreshToken: string): Promise<AuthResponse> {
     try {
-      const payload = await this.jwtService.verifyAsync<{
+      const payload = await this._jwtService.verifyAsync<{
         sub: string;
         email: string;
       }>(refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        secret: this._configService.get<string>('JWT_REFRESH_SECRET'),
       });
 
-      const user = await this.authRepository.findById(payload.sub);
+      const user = await this._authRepository.findById(payload.sub);
       if (!user || !user.refreshToken) {
         throw new UnauthorizedException(AUTH_MESSAGES.ERRORS.ACCESS_DENIED);
       }
@@ -87,18 +87,18 @@ export class IdentityService implements IIdentityService {
   async issueTokens(user: UserDocument): Promise<AuthResponse> {
     const payload = { sub: user._id.toString(), email: user.email };
     const [access_token, refresh_token] = await Promise.all([
-      this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<any>('JWT_ACCESS_TOKEN_EXPIRES_IN') || '15m',
+      this._jwtService.signAsync(payload, {
+        secret: this._configService.get<string>('JWT_SECRET'),
+        expiresIn: this._configService.get<any>('JWT_ACCESS_TOKEN_EXPIRES_IN') || '15m',
       }),
-      this.jwtService.signAsync(payload, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        expiresIn: this.configService.get<any>('JWT_REFRESH_TOKEN_EXPIRES_IN') || '7d',
+      this._jwtService.signAsync(payload, {
+        secret: this._configService.get<string>('JWT_REFRESH_SECRET'),
+        expiresIn: this._configService.get<any>('JWT_REFRESH_TOKEN_EXPIRES_IN') || '7d',
       }),
     ]);
 
     const hashedRefreshToken = await bcrypt.hash(refresh_token, 10);
-    await this.authRepository.findByIdAndUpdate(user._id.toString(), {
+    await this._authRepository.findByIdAndUpdate(user._id.toString(), {
       $set: { refreshToken: hashedRefreshToken }
     });
 
@@ -111,7 +111,7 @@ export class IdentityService implements IIdentityService {
   }
 
   async logout(userId: string) {
-    await this.authRepository.findByIdAndUpdate(userId, {
+    await this._authRepository.findByIdAndUpdate(userId, {
       $set: { refreshToken: null }
     });
     return { message: AUTH_MESSAGES.SUCCESS.LOGOUT_SUCCESS };

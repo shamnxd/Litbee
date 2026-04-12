@@ -2,23 +2,25 @@ import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OAuth2Client } from 'google-auth-library';
 import * as bcrypt from 'bcrypt';
-import { GOOGLE_OAUTH_CLIENT } from '../auth.module';
+import {
+  GOOGLE_OAUTH_CLIENT,
+  I_AUTH_REPOSITORY,
+  I_IDENTITY_SERVICE
+} from '../constants/tokens';
 import { IGoogleAuthService } from '../interfaces/google-auth.service.interface';
 import { GoogleUserProfile } from '../dto/google-user-profile.dto';
 import { AUTH_MESSAGES } from '../../common/constants/messages';
-import { I_AUTH_REPOSITORY } from '../interfaces/auth.repository.interface';
 import type { IAuthRepository } from '../interfaces/auth.repository.interface';
-import { I_IDENTITY_SERVICE } from '../interfaces/identity.service.interface';
 import type { IIdentityService } from '../interfaces/identity.service.interface';
 import { AuthResponse } from '../dto/auth-response.dto';
 
 @Injectable()
 export class GoogleAuthService implements IGoogleAuthService {
   constructor(
-    @Inject(GOOGLE_OAUTH_CLIENT) private readonly googleClient: OAuth2Client,
-    @Inject(I_AUTH_REPOSITORY) private readonly authRepository: IAuthRepository,
-    @Inject(I_IDENTITY_SERVICE) private readonly identityService: IIdentityService,
-    private readonly configService: ConfigService,
+    @Inject(GOOGLE_OAUTH_CLIENT) private readonly _googleClient: OAuth2Client,
+    @Inject(I_AUTH_REPOSITORY) private readonly _authRepository: IAuthRepository,
+    @Inject(I_IDENTITY_SERVICE) private readonly _identityService: IIdentityService,
+    private readonly _configService: ConfigService,
   ) { }
 
   async verifyToken(token: string): Promise<GoogleUserProfile> {
@@ -27,9 +29,9 @@ export class GoogleAuthService implements IGoogleAuthService {
       let name: string | undefined;
 
       try {
-        const ticket = await this.googleClient.verifyIdToken({
+        const ticket = await this._googleClient.verifyIdToken({
           idToken: token,
-          audience: this.configService.get<string>('GOOGLE_CLIENT_ID'),
+          audience: this._configService.get<string>('GOOGLE_CLIENT_ID'),
         });
         const payload = ticket.getPayload();
         if (payload) {
@@ -67,26 +69,26 @@ export class GoogleAuthService implements IGoogleAuthService {
   async login(token: string): Promise<AuthResponse> {
     const { email, name } = await this.verifyToken(token);
 
-    let user = await this.authRepository.findOne({ email });
+    let user = await this._authRepository.findOne({ email });
 
     if (!user) {
       const randomPassword = await bcrypt.hash(
         Math.random().toString(36),
         10,
       );
-      user = await this.authRepository.create({
+      user = await this._authRepository.create({
         email,
         name: name ?? email,
         password: randomPassword,
         isVerified: true
       });
     } else if (!user.isVerified) {
-      const updatedUser = await this.authRepository.findByIdAndUpdate(user._id.toString(), {
+      const updatedUser = await this._authRepository.findByIdAndUpdate(user._id.toString(), {
         $set: { isVerified: true }
       });
       if (updatedUser) user = updatedUser;
     }
 
-    return this.identityService.issueTokens(user);
+    return this._identityService.issueTokens(user);
   }
 }
