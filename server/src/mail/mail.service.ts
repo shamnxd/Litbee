@@ -3,9 +3,10 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { verificationOtpTemplate } from './templates/verification-otp.template';
 import { resetPasswordTemplate } from './templates/reset-password.template';
+import type { IMailService } from './mail.service.interface';
 
 @Injectable()
-export class MailService {
+export class MailService implements IMailService {
   private transporter: nodemailer.Transporter;
 
   constructor(private readonly configService: ConfigService) {

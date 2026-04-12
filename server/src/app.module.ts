@@ -4,7 +4,6 @@ import { envValidationSchema } from './config/env.validation';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
 import { UrlsModule } from './urls/urls.module';
 import { MailModule } from './mail/mail.module';
 import { RedisModule } from './redis/redis.module';
@@ -25,7 +24,6 @@ import { RedisModule } from './redis/redis.module';
     }),
 
     AuthModule,
-    UsersModule,
     UrlsModule,
     MailModule,
     RedisModule,
