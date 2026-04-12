@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, ConflictException, forwardRef } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
@@ -17,7 +17,8 @@ import { AuthResponse } from '../dto/auth-response.dto';
 export class AccountService implements IAccountService {
   constructor(
     @Inject(I_AUTH_REPOSITORY) private readonly _authRepository: IAuthRepository,
-    @Inject(I_IDENTITY_SERVICE) private readonly _identityService: IIdentityService,
+    @Inject(forwardRef(() => I_IDENTITY_SERVICE))
+    private readonly _identityService: IIdentityService,
     @Inject(I_REDIS_SERVICE) private readonly _redisService: IRedisService,
     @Inject(I_MAIL_SERVICE) private readonly _mailService: IMailService,
     private readonly _configService: ConfigService,

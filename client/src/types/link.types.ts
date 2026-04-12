@@ -9,7 +9,7 @@ export interface LinkItem {
 }
 
 export interface RawUrlItem {
-    _id: string;
+    id: string;
     shortCode: string;
     longUrl: string;
     clicks: number;
