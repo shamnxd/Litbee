@@ -19,10 +19,7 @@ import type { IUrlsService } from './interfaces/urls.service.interface';
 import { I_URLS_SERVICE } from './interfaces/urls.service.interface';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-
-interface AuthenticatedRequest extends Request {
-  user: { userId: string };
-}
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 
 @Controller()
 export class UrlsController {

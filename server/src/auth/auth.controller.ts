@@ -96,7 +96,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async logout(
-    @Req() req: Request & { user: { sub: string } },
+    @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.identityService.logout(req.user.sub);
