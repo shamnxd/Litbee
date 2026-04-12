@@ -3,11 +3,13 @@ import {
   Injectable,
   ConflictException,
   UnauthorizedException,
+  forwardRef,
 } from '@nestjs/common';
 import { UserDocument } from '../schemas/user.schema';
-import { I_AUTH_REPOSITORY } from '../constants/tokens';
+import { I_AUTH_REPOSITORY, I_ACCOUNT_SERVICE } from '../constants/tokens';
 import type { IAuthRepository } from '../interfaces/auth.repository.interface';
 import type { IIdentityService } from '../interfaces/identity.service.interface';
+import type { IAccountService } from '../interfaces/account.service.interface';
 import type { AuthResponse, UserResponse } from '../dto/auth-response.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -21,6 +23,8 @@ import { AuthMapper } from '../auth.mapper';
 export class IdentityService implements IIdentityService {
   constructor(
     @Inject(I_AUTH_REPOSITORY) private readonly _authRepository: IAuthRepository,
+    @Inject(forwardRef(() => I_ACCOUNT_SERVICE))
+    private readonly _accountService: IAccountService,
     private readonly _jwtService: JwtService,
     private readonly _configService: ConfigService,
   ) { }
@@ -38,6 +42,9 @@ export class IdentityService implements IIdentityService {
       password: hashedPassword,
       isVerified: false
     });
+
+    // Send verification email automatically in service layer
+    await this._accountService.sendVerificationEmail(user.email);
 
     return {
       message: AUTH_MESSAGES.SUCCESS.REGISTRATION_SUCCESS,
