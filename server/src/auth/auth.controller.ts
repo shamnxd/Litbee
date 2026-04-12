@@ -11,7 +11,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import {
   I_IDENTITY_SERVICE,
   I_ACCOUNT_SERVICE,

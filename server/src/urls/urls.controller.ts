@@ -14,7 +14,7 @@ import {
   UseGuards,
   Inject,
 } from '@nestjs/common';
-import type { AuthenticatedRequest } from '../common/interfaces/request.interface';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import type { IUrlsService } from './interfaces/urls.service.interface';
 import { I_URLS_SERVICE } from './constants/tokens';
 import { CreateUrlDto } from './dto/create-url.dto';
