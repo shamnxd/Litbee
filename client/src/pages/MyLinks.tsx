@@ -58,7 +58,7 @@ export default function MyLinks() {
             const response = await urlService.getAll(pageNum, limit, search);
 
             const mappedLinks = (response.data as RawUrlItem[]).map((item) => ({
-                id: item._id,
+                id: item.id,
                 shortUrl: `${import.meta.env.VITE_SHORT_URL_BASE || 'litbee.io'}/${item.shortCode}`,
                 longUrl: item.longUrl,
                 clicks: item.clicks,
@@ -147,7 +147,7 @@ export default function MyLinks() {
         try {
             const response = await urlService.create({ longUrl: data.longUrl, customSlug: data.customSlug || undefined, tags });
             const newItem: LinkItem = {
-                id: response.data._id,
+                id: response.data.id,
                 shortUrl: `${import.meta.env.VITE_SHORT_URL_BASE || 'litbee.io'}/${response.data.shortCode}`,
                 longUrl: response.data.longUrl,
                 clicks: 0,
