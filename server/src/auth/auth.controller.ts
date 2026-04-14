@@ -25,6 +25,7 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { setRefreshTokenCookie, clearRefreshTokenCookie } from '../common/utils/cookie.util';
+import { AUTH_ROUTES } from './constants/routes';
 
 @Controller('auth')
 export class AuthController {
@@ -34,13 +35,13 @@ export class AuthController {
     @Inject(I_GOOGLE_AUTH_SERVICE) private readonly _googleAuthService: IGoogleAuthService,
   ) { }
 
-  @Post('register')
+  @Post(AUTH_ROUTES.REGISTER)
   @HttpCode(HttpStatus.CREATED)
   register(@Body() dto: RegisterDto) {
     return this._identityService.register(dto);
   }
 
-  @Post('login')
+  @Post(AUTH_ROUTES.LOGIN)
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() dto: LoginDto,
@@ -51,7 +52,7 @@ export class AuthController {
     return data;
   }
 
-  @Post('google-login')
+  @Post(AUTH_ROUTES.GOOGLE_LOGIN)
   @HttpCode(HttpStatus.OK)
   async googleLogin(
     @Body('token') token: string,
@@ -62,13 +63,13 @@ export class AuthController {
     return data;
   }
 
-  @Post('send-otp')
+  @Post(AUTH_ROUTES.SEND_OTP)
   @HttpCode(HttpStatus.OK)
   async sendOtp(@Body('email') email: string) {
     return this._accountService.sendVerificationEmail(email);
   }
 
-  @Post('verify-email')
+  @Post(AUTH_ROUTES.VERIFY_EMAIL)
   @HttpCode(HttpStatus.OK)
   async verifyEmail(
     @Body('email') email: string,
@@ -80,13 +81,13 @@ export class AuthController {
     return data;
   }
 
-  @Post('forgot-password')
+  @Post(AUTH_ROUTES.FORGOT_PASSWORD)
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body('email') email: string) {
     return this._accountService.forgotPassword(email);
   }
 
-  @Post('reset-password')
+  @Post(AUTH_ROUTES.RESET_PASSWORD)
   @HttpCode(HttpStatus.OK)
   async resetPassword(
     @Body('token') token: string,
@@ -95,7 +96,7 @@ export class AuthController {
     return this._accountService.resetPassword(token, newPass);
   }
 
-  @Post('logout')
+  @Post(AUTH_ROUTES.LOGOUT)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async logout(
@@ -107,7 +108,7 @@ export class AuthController {
     return result;
   }
 
-  @Post('refresh')
+  @Post(AUTH_ROUTES.REFRESH)
   @HttpCode(HttpStatus.OK)
   async refresh(
     @Req() req: Request,

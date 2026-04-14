@@ -17,6 +17,7 @@ import {
 import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import type { IUrlsService } from './interfaces/urls.service.interface';
 import { I_URLS_SERVICE } from './constants/tokens';
+import { URL_ROUTES } from './constants/routes';
 import { CreateUrlDto } from './dto/create-url.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
@@ -26,7 +27,7 @@ export class UrlsController {
     @Inject(I_URLS_SERVICE) private readonly _urlsService: IUrlsService,
   ) { }
 
-  @Get('urls/check-availability')
+  @Get(URL_ROUTES.CHECK_AVAILABILITY)
   @UseGuards(JwtAuthGuard)
   async checkAvailability(
     @Query('slug') slug: string,
@@ -39,7 +40,7 @@ export class UrlsController {
     return { available: isAvailable };
   }
 
-  @Post('urls')
+  @Post(URL_ROUTES.URLS)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(
@@ -49,7 +50,7 @@ export class UrlsController {
     return this._urlsService.create(dto, req.user.userId);
   }
 
-  @Get('urls')
+  @Get(URL_ROUTES.URLS)
   @UseGuards(JwtAuthGuard)
   async findAll(
     @ReqDecorator() req: AuthenticatedRequest,
@@ -65,7 +66,7 @@ export class UrlsController {
     );
   }
 
-  @Put('urls/:id')
+  @Put(URL_ROUTES.URL_BY_ID)
   @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
@@ -75,7 +76,7 @@ export class UrlsController {
     return this._urlsService.updateUrl(id, dto, req.user.userId);
   }
 
-  @Delete('urls/:id')
+  @Delete(URL_ROUTES.URL_BY_ID)
   @UseGuards(JwtAuthGuard)
   async remove(
     @Param('id') id: string,
@@ -84,7 +85,7 @@ export class UrlsController {
     return this._urlsService.deleteUrl(id, req.user.userId);
   }
 
-  @Get(':code')
+  @Get(URL_ROUTES.REDIRECT_BY_CODE)
   @Redirect()
   async redirect(@Param('code') code: string) {
     const url = await this._urlsService.findByCode(code);
