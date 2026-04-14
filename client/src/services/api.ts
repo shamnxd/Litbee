@@ -2,6 +2,7 @@ import axios from 'axios';
 import type { InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { store } from '../store';
 import { logout, updateToken } from '../store/slices/authSlice';
+import { AUTH_API_ROUTE_LIST, AUTH_API_ROUTES } from '@/constants/apiRoutes';
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
@@ -30,8 +31,7 @@ api.interceptors.response.use(
     },
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-        const authRoutes = ['/auth/login', '/auth/register', '/auth/verify-email', '/auth/refresh', '/auth/forgot-password', '/auth/reset-password', '/auth/google-login', '/auth/send-otp'];
-        const isAuthRoute = authRoutes.some(route => originalRequest.url?.includes(route));
+        const isAuthRoute = AUTH_API_ROUTE_LIST.some(route => originalRequest.url?.includes(route));
 
         if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
             originalRequest._retry = true;
@@ -43,7 +43,7 @@ api.interceptors.response.use(
                 }
 
                 // Call refresh endpoint
-                const response = await axios.post(`${api.defaults.baseURL}/auth/refresh`, {}, { withCredentials: true });
+                const response = await axios.post(`${api.defaults.baseURL}${AUTH_API_ROUTES.REFRESH}`, {}, { withCredentials: true });
 
                 const { access_token } = response.data;
 

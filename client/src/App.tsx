@@ -13,6 +13,7 @@ import ForgotPassword from "@/pages/ForgotPassword";
 import ResetPassword from "@/pages/ResetPassword";
 
 import axios from "axios";
+import { AUTH_API_ROUTES } from "@/constants/apiRoutes";
 
 function App() {
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ function App() {
     const initAuth = async () => {
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/auth/refresh`,
+          `${import.meta.env.VITE_API_URL}${AUTH_API_ROUTES.REFRESH}`,
           {},
           { withCredentials: true }
         );
